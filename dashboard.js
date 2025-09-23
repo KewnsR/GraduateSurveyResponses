@@ -150,7 +150,7 @@ function showTab(tabName, event) {
 // Load CSV data for charts
 async function loadCSVDataForCharts() {
     try {
-        const csvUrl = '../data/Employability Status of Bachelor of Secondary Education Major in Mathematics Graduates for the Academic Year 2024 (Responses).csv';
+        const csvUrl = 'data/Employability Status of Bachelor of Secondary Education Major in Mathematics Graduates for the Academic Year 2024 (Responses).csv';
         globalCSVData = await loadCSVData(csvUrl);
         
         // Fix: Trim all keys in each row to avoid issues with extra spaces in CSV headers
@@ -675,7 +675,7 @@ let alumniRawData = [];
 let alumniFilteredData = [];
 
 function loadAlumniData() {
-    fetch('../data/Employability Status of Bachelor of Secondary Education Major in Mathematics Graduates for the Academic Year 2024 (Responses).csv')
+    fetch('data/Employability Status of Bachelor of Secondary Education Major in Mathematics Graduates for the Academic Year 2024 (Responses).csv')
         .then(response => response.text())
         .then(csvText => {
             const rows = csvText.split('\n');

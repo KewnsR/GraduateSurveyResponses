@@ -48,45 +48,54 @@ This project is an interactive web-based dashboard for analyzing the employabili
 ## Installation and Setup
 
 ### Prerequisites
-- XAMPP (or any web server with PHP support)
 - Web browser (Chrome, Firefox, Safari, Edge)
 - Internet connection for CDN libraries (Chart.js, PapaParse)
 
-### Installation Steps
-
+### Local Development
 1. **Clone or Download the Project**
    ```
-   Place the project folder in your XAMPP htdocs directory:
-   C:\xampp\htdocs\GraduateSurveyResponses
+   Place the project folder in your web server directory or open index.html directly in a browser
    ```
 
 2. **File Structure**
    ```
    GraduateSurveyResponses/
-   ├── dashboard.php          # Main dashboard page
+   ├── index.html             # Main dashboard page
    ├── dashboard.js           # JavaScript functionality
    ├── dashboard.css          # Styling
+   ├── README.md              # This file
    ├── data/
    │   └── Employability Status of Bachelor of Secondary Education Major in Mathematics Graduates for the Academic Year 2024 (Responses).csv
    └── php/
-       ├── dashboard.php      # (Duplicate - can be removed)
-       └── db.php            # Database configuration
+       ├── dashboard.php      # Legacy PHP version (not used)
+       └── db.php            # Database configuration (not used)
    ```
 
-3. **Start XAMPP**
-   - Launch XAMPP Control Panel
-   - Start Apache and MySQL services
+3. **Access the Dashboard**
+   - Open `index.html` in your web browser
+   - Or serve the folder with any static web server
 
-4. **Access the Dashboard**
-   - Open your web browser
-   - Navigate to: `http://localhost/GraduateSurveyResponses/dashboard.php`
+### Deployment to GitHub Pages
 
-### Database Setup (Optional)
-The application currently loads data directly from the CSV file. If you want to use the MySQL database:
+1. **Push to GitHub**
+   - Ensure your repository is public
+   - Push the code to the `main` branch
 
-1. Create a database named `alumni_tracer_study` in phpMyAdmin
-2. Import the CSV data into appropriate tables
-3. Modify the JavaScript to fetch data from PHP endpoints instead of CSV
+2. **Enable GitHub Pages**
+   - Go to your repository settings
+   - Scroll to "Pages" section
+   - Select "Deploy from a branch"
+   - Choose `main` branch and `/ (root)` folder
+   - Save
+
+3. **Access Your Deployed Site**
+   - GitHub will provide a URL like: `https://[username].github.io/GraduateSurveyResponses/`
+   - The dashboard will be live and accessible worldwide
+
+### Alternative Deployment Options
+- **Netlify**: Drag and drop the folder to netlify.com
+- **Vercel**: Connect your GitHub repo to vercel.com
+- **Any static hosting**: Upload the files to any web host that supports static sites
 
 ## Usage
 
