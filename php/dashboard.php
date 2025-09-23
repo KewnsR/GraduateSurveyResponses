@@ -11,6 +11,10 @@
 </head>
 <body>
     <div class="dashboard-container">
+        <!-- Scroll to Top Button -->
+        <button id="scrollToTopBtn" style="display:none;position:fixed;bottom:32px;right:32px;z-index:9999;background:#667eea;color:#fff;border:none;border-radius:50%;width:48px;height:48px;box-shadow:0 2px 8px rgba(60,60,120,0.18);font-size:2em;cursor:pointer;transition:background 0.2s;">
+            &#8679;
+        </button>
         <div class="header">
             <h1>Alumni Tracer Study Dashboard</h1>
             <p>Comprehensive analysis of graduate employment and outcomes (56 Respondents)</p>
@@ -54,6 +58,14 @@
             <button class="tab-button" onclick="showTab('alumni', event)">Alumni Records</button>
             <button class="tab-button" onclick="showTab('employment', event)">Employment Data</button>
             <button class="tab-button" onclick="showTab('analytics', event)">Analytics</button>
+        </div>
+
+        <!-- Alumni Details Modal: moved outside tabs so it's always available -->
+        <div id="alumniDetailsModal" class="alumni-modal" style="display:none;">
+            <div class="alumni-modal-content">
+                <span class="alumni-modal-close" onclick="closeAlumniModal()">&times;</span>
+                <div id="alumniModalBody"></div>
+            </div>
         </div>
 
         <!-- Tab Contents -->
@@ -107,15 +119,6 @@
                     <canvas id="timeToEmploymentChart"></canvas>
                 </div>
             </div>
-
-                        <!-- Alumni Details Modal -->
-            <div id="alumniDetailsModal" class="alumni-modal" style="display:none;">
-                <div class="alumni-modal-content">
-                    <span class="alumni-modal-close" onclick="closeAlumniModal()">&times;</span>
-                    <div id="alumniModalBody"></div>
-                </div>
-            </div>
-
             <!-- New Charts Added -->
             <div class="chart-card">
                 <h3 class="chart-title">Demographic Breakdown</h3>
@@ -173,4 +176,18 @@
         </div>
     </div>
 </body>
+<script>
+// Show/hide scroll-to-top button
+const scrollBtn = document.getElementById('scrollToTopBtn');
+window.addEventListener('scroll', function() {
+    if (window.scrollY > 200) {
+        scrollBtn.style.display = 'block';
+    } else {
+        scrollBtn.style.display = 'none';
+    }
+});
+scrollBtn.addEventListener('click', function() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+</script>
 </html>

@@ -710,7 +710,15 @@ function loadAlumniData() {
                     'ARE YOU CURRENTLY EMPLOYED?': employedStatus,
                     'POSITION': cols[18]?.replace(/"/g, '').trim(),
                     'COMPANY': cols[19]?.replace(/"/g, '').trim(),
-                    'ORG TYPE': cols[22]?.trim()
+                    'ORG TYPE': cols[22]?.trim(),
+                    // Additional info from CSV for full details
+                    'LET PASSER / ELIGIBILITY': (cols[20]?.trim() || cols[21]?.trim() || ''),
+                    'AWARDS RECEIVED': cols[23]?.trim(),
+                    'SOCIO-ECONOMIC STATUS (Before Employment)': cols[24]?.trim(),
+                    'SOCIO-ECONOMIC STATUS (After Employment)': cols[25]?.trim(),
+                    'REASON FOR UNEMPLOYMENT': cols[26]?.trim(),
+                    'SKILLS PROFICIENCY': `${cols[27]?.trim() || ''} ${cols[28]?.trim() || ''} ${cols[29]?.trim() || ''}`,
+                    'SKILLS USAGE': `${cols[30]?.trim() || ''} ${cols[31]?.trim() || ''} ${cols[32]?.trim() || ''}`
                 });
             }
 
@@ -803,11 +811,48 @@ function renderAlumniCards(data) {
                 </div>
             </div>
             <div class="alumni-actions">
-                <button class="btn" onclick="alert('Full details for ${a['NAME']} coming soon!')">&#128065; View Full Details</button>
+                <button class="btn view-details-btn" data-idx="${idx}">&#128065; View Full Details</button>
             </div>
         `;
         grid.appendChild(card);
     });
+    // Add event listeners for view details buttons
+    const detailBtns = grid.querySelectorAll('.view-details-btn');
+    detailBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const idx = parseInt(btn.getAttribute('data-idx'));
+            showAlumniDetailsModal(data[idx]);
+        });
+    });
+// ...existing code...
+
+// Show alumni details modal (global scope)
+function showAlumniDetailsModal(alumni) {
+    const modal = document.getElementById('alumniDetailsModal');
+    const body = document.getElementById('alumniModalBody');
+    if (!modal || !body) return;
+
+    // Build details HTML
+    let html = `<h2>${alumni['NAME']}</h2>`;
+    html += '<div class="alumni-details-grid">';
+    Object.keys(alumni).forEach(key => {
+        if (key !== 'NAME') {
+            html += `<div class="detail-item"><strong>${key}:</strong> ${alumni[key] || '—'}</div>`;
+        }
+    });
+    html += '</div>';
+    body.innerHTML = html;
+    modal.style.display = 'block';
+}
+
+// Close alumni modal (global scope)
+function closeAlumniModal() {
+    const modal = document.getElementById('alumniDetailsModal');
+    if (modal) modal.style.display = 'none';
+}
+
+// Make closeAlumniModal global for HTML onclick
+window.closeAlumniModal = closeAlumniModal;
 }
 
 function filterAlumni() {
