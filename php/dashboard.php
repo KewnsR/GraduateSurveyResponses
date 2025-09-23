@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="../dashboard.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script src="../dashboard.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 </head>
 <body>
     <div class="dashboard-container">
@@ -78,41 +78,24 @@
 
         <div id="alumni-tab" class="tab-content">
             <h2>Alumni Records</h2>
-            <div class="filter-section">
-                <div class="filter-group">
-                    <label>Graduation Year</label>
-                    <select id="yearFilter">
-                        <option value="">All Years</option>
-                    </select>
+            <div class="filter-section card-style-filter">
+                <h3><span style="font-size:1.2em;">&#128269;</span> Filters & Search</h3>
+                <div class="filter-row">
+                    <input type="text" id="searchInput" placeholder="Search name, company, position..." class="filter-input" />
+                    <select id="yearFilter" class="filter-input"><option value="">All Years</option></select>
+                    <select id="employmentFilter" class="filter-input"><option value="">All Statuses</option><option value="Yes">Employed</option><option value="No">Unemployed</option></select>
+                    <select id="genderFilter" class="filter-input"><option value="">All Genders</option><option value="Male">Male</option><option value="Female">Female</option></select>
+                    <select id="civilStatusFilter" class="filter-input"><option value="">All Status</option><option value="Single">Single</option><option value="Married">Married</option></select>
+                    <select id="orgTypeFilter" class="filter-input"><option value="">All Types</option><option value="Private">Private</option><option value="Public">Public</option></select>
+                    <button class="btn btn-secondary" onclick="clearAlumniFilters()">Clear Filters</button>
                 </div>
-                <div class="filter-group">
-                    <label>Employment Status</label>
-                    <select id="employmentFilter">
-                        <option value="">All Statuses</option>
-                        <option value="Yes">Employed</option>
-                        <option value="No">Unemployed</option>
-                    </select>
-                </div>
-                <button class="btn btn-primary" onclick="filterAlumni()">Apply Filters</button>
+                <div id="alumniCount" style="margin-top:8px; font-size:0.95em; color:#555;"></div>
             </div>
             <div class="loading" id="alumniLoading">Loading alumni data...</div>
-            <table class="data-table" id="alumniTable" style="display: none;">
-                <thead>
-                    <tr>
-                        <th>No.</th>
-                        <th>Name</th>
-                        <th>Year Graduated</th>
-                        <th>Employment Status</th>
-                        <th>Position</th>
-                        <th>Company</th>
-                    </tr>
-                </thead>
-                <tbody id="alumniTableBody">
-                </tbody>
-            </table>
-        </div>
+            <div id="alumniCardsGrid" class="alumni-cards-grid"></div>
 
-        <div id="employment-tab" class="tab-content">
+    </div>
+    <div id="employment-tab" class="tab-content">
             <h2>Employment Analysis</h2>
             <div class="charts-container">
                 <div class="chart-card">
@@ -124,12 +107,49 @@
                     <canvas id="timeToEmploymentChart"></canvas>
                 </div>
             </div>
-            <div class="chart-card" style="margin-top: 30px;">
-                <h3 class="chart-title">Financial Improvement Factors</h3>
-                <div style="width:100%;">
-                    <canvas id="financialFactorsChart"></canvas>
-                    <div id="financialFactorsTableContainer"></div>
+
+                        <!-- Alumni Details Modal -->
+            <div id="alumniDetailsModal" class="alumni-modal" style="display:none;">
+                <div class="alumni-modal-content">
+                    <span class="alumni-modal-close" onclick="closeAlumniModal()">&times;</span>
+                    <div id="alumniModalBody"></div>
                 </div>
+            </div>
+
+            <!-- New Charts Added -->
+            <div class="chart-card">
+                <h3 class="chart-title">Demographic Breakdown</h3>
+                <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+                    <div style="flex:1; min-width: 250px;">
+                        <canvas id="ageGroupChart"></canvas>
+                    </div>
+                    <div style="flex:1; min-width: 250px;">
+                        <canvas id="genderChart"></canvas>
+                    </div>
+                    <div style="flex:1; min-width: 250px;">
+                        <canvas id="civilStatusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <h3 class="chart-title">Socio-Economic Mobility</h3>
+                <canvas id="socioEconomicChart"></canvas>
+            </div>
+
+            <div class="chart-card">
+                <h3 class="chart-title">Licensure Exam Outcomes</h3>
+                <canvas id="licensureChart"></canvas>
+            </div>
+
+            <div class="chart-card">
+                <h3 class="chart-title">Reasons for Unemployment</h3>
+                <canvas id="unemploymentReasonsChart"></canvas>
+            </div>
+
+            <div class="chart-card">
+                <h3 class="chart-title">Awards and Achievements</h3>
+                <canvas id="awardsChart"></canvas>
             </div>
         </div>
 
@@ -139,6 +159,17 @@
                 <h3 class="chart-title">Skills Proficiency vs Usage</h3>
                 <canvas id="skillsChart"></canvas>
             </div>
+
+            <!-- New Charts Added -->
+            <div class="chart-card">
+                <h3 class="chart-title">Skill Proficiency Distribution</h3>
+                <canvas id="skillsProficiencyChart"></canvas>
+            </div>
+
+            <div class="chart-card">
+                <h3 class="chart-title">Most Used Skills in Current Jobs</h3>
+                <canvas id="skillsUsageChart"></canvas>
+            </div>  
         </div>
     </div>
 </body>

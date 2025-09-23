@@ -1,126 +1,186 @@
 // Database connection simulation
-        const dbConfig = {
-            host: 'localhost',
-            username: 'root',
-            password: '',
-            database: 'alumni_tracer_study'
-        };
+const dbConfig = {
+    host: 'localhost',
+    username: 'root',
+    password: '',
+    database: 'alumni_tracer_study'
+};
 
-        // Sample data for 56 respondents
-        const sampleData = {
-            totalAlumni: 56,
-            employedAlumni: 46,
-            avgEmploymentTime: 2.8,
-            recentGraduates: 20, // set to 2024 graduates if you want "recent" to mean 2024
-            graduatesByYear: {
-                '2022': 14,
-                '2023': 22,
-                '2024': 20
-            },
-            industryData: {
-                'Education': 22,
-                'Technology': 8,
-                'Government': 7,
-                'Healthcare': 5,
-                'Business': 4,
-                'Others': 2
-            },
-            financialImprovementFactors: {
-                'Higher salary/income': 35,
-                'Job security': 28,
-                'Better benefits': 22,
-                'Career advancement': 25,
-                'Skill development': 20,
-                'Work-life balance': 18,
-                'Professional growth': 23,
-                'Recognition/promotion': 15
+// Sample data for 56 respondents
+const sampleData = {
+    totalAlumni: 56,
+    employedAlumni: 46,
+    avgEmploymentTime: 2.8,
+    recentGraduates: 20,
+    graduatesByYear: {
+        '2022': 14,
+        '2023': 22,
+        '2024': 20
+    },
+    industryData: {
+        'Education': 22,
+        'Technology': 8,
+        'Government': 7,
+        'Healthcare': 5,
+        'Business': 4,
+        'Others': 2
+    },
+    financialImprovementFactors: {
+        'Higher salary/income': 35,
+        'Job security': 28,
+        'Better benefits': 22,
+        'Career advancement': 25,
+        'Skill development': 20,
+        'Work-life balance': 18,
+        'Professional growth': 23,
+        'Recognition/promotion': 15
+    }
+};
+
+// Global variable to store CSV data
+let globalCSVData = [];
+let chartsInitialized = {
+    employment: false,
+    analytics: false
+};
+
+// Initialize dashboard
+document.addEventListener('DOMContentLoaded', function() {
+    loadDashboardData();
+    initializeOverviewCharts();
+    loadAlumniData();
+    loadCSVDataForCharts();
+});
+
+function loadDashboardData() {
+    // Update statistics cards
+    document.getElementById('totalAlumni').textContent = sampleData.totalAlumni.toLocaleString();
+    document.getElementById('employmentRate').textContent = 
+        Math.round((sampleData.employedAlumni / sampleData.totalAlumni) * 100) + '%';
+    document.getElementById('avgEmployment').textContent = sampleData.avgEmploymentTime + ' months';
+    document.getElementById('recentGraduates').textContent = sampleData.recentGraduates;
+    
+    document.getElementById('employedCount').textContent = sampleData.employedAlumni;
+    document.getElementById('unemployedCount').textContent = sampleData.totalAlumni - sampleData.employedAlumni;
+}
+
+function initializeOverviewCharts() {
+    // Employment Status Chart
+    const employmentCtx = document.getElementById('employmentChart').getContext('2d');
+    new Chart(employmentCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Employed', 'Unemployed'],
+            datasets: [{
+                data: [sampleData.employedAlumni, sampleData.totalAlumni - sampleData.employedAlumni],
+                backgroundColor: ['#10b981', '#ef4444'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
             }
-        };
+        }
+    });
 
-        // Initialize dashboard
-        document.addEventListener('DOMContentLoaded', function() {
-            loadDashboardData();
-            initializeCharts();
-            loadAlumniData();
+    // Graduates by Year Chart
+    const graduatesCtx = document.getElementById('graduatesChart').getContext('2d');
+    new Chart(graduatesCtx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(sampleData.graduatesByYear),
+            datasets: [{
+                label: 'Graduates',
+                data: Object.values(sampleData.graduatesByYear),
+                backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                borderColor: '#667eea',
+                borderWidth: 2,
+                borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+function showTab(tabName, event) {
+    // Hide all tab contents
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Remove active class from all buttons
+    document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Show selected tab
+    document.getElementById(tabName + '-tab').classList.add('active');
+    if (event && event.target) {
+        event.target.classList.add('active');
+    }
+
+    // Initialize charts for specific tabs when they become visible
+    if (tabName === 'employment' && !chartsInitialized.employment && globalCSVData.length > 0) {
+        setTimeout(() => initializeEmploymentCharts(), 100);
+        chartsInitialized.employment = true;
+    }
+    
+    if (tabName === 'analytics' && !chartsInitialized.analytics && globalCSVData.length > 0) {
+        setTimeout(() => initializeAnalyticsCharts(), 100);
+        chartsInitialized.analytics = true;
+    }
+}
+
+// Load CSV data for charts
+async function loadCSVDataForCharts() {
+    try {
+        const csvUrl = '../data/Employability Status of Bachelor of Secondary Education Major in Mathematics Graduates for the Academic Year 2024 (Responses).csv';
+        globalCSVData = await loadCSVData(csvUrl);
+        
+        // Fix: Trim all keys in each row to avoid issues with extra spaces in CSV headers
+        globalCSVData = globalCSVData.map(row => {
+            const trimmedRow = {};
+            Object.keys(row).forEach(key => {
+                trimmedRow[key.trim()] = typeof row[key] === 'string' ? row[key].trim() : row[key];
+            });
+            return trimmedRow;
         });
 
-        function loadDashboardData() {
-            // Update statistics cards
-            document.getElementById('totalAlumni').textContent = sampleData.totalAlumni.toLocaleString();
-            document.getElementById('employmentRate').textContent = 
-                Math.round((sampleData.employedAlumni / sampleData.totalAlumni) * 100) + '%';
-            document.getElementById('avgEmployment').textContent = sampleData.avgEmploymentTime + ' months';
-            document.getElementById('recentGraduates').textContent = sampleData.recentGraduates;
-            
-            document.getElementById('employedCount').textContent = sampleData.employedAlumni;
-            document.getElementById('unemployedCount').textContent = sampleData.totalAlumni - sampleData.employedAlumni; // 56 - 46 = 10
+        console.log('CSV data loaded:', globalCSVData.length, 'records');
+    } catch (error) {
+        console.error('Error loading CSV data:', error);
+        // Use fallback data if CSV fails to load
+        globalCSVData = [];
+    }
+}
 
-            // Populate year filter
-            const yearFilter = document.getElementById('yearFilter');
-            Object.keys(sampleData.graduatesByYear).forEach(year => {
-                const option = document.createElement('option');
-                option.value = year;
-                option.textContent = year;
-                yearFilter.appendChild(option);
-            });
-        }
+function initializeEmploymentCharts() {
+    if (globalCSVData.length === 0) {
+        console.log('No CSV data available for employment charts');
+        return;
+    }
 
-        function initializeCharts() {
-            // Employment Status Chart
-            const employmentCtx = document.getElementById('employmentChart').getContext('2d');
-            new Chart(employmentCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Employed', 'Unemployed'],
-                    datasets: [{
-                        data: [sampleData.employedAlumni, sampleData.totalAlumni - sampleData.employedAlumni],
-                        backgroundColor: ['#10b981', '#ef4444'],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        }
-                    }
-                }
-            });
-
-            // Graduates by Year Chart
-            const graduatesCtx = document.getElementById('graduatesChart').getContext('2d');
-            new Chart(graduatesCtx, {
-                type: 'bar',
-                data: {
-                    labels: Object.keys(sampleData.graduatesByYear),
-                    datasets: [{
-                        label: 'Graduates',
-                        data: Object.values(sampleData.graduatesByYear),
-                        backgroundColor: 'rgba(102, 126, 234, 0.8)',
-                        borderColor: '#667eea',
-                        borderWidth: 2,
-                        borderRadius: 8
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-
-            // Industry Chart
-            const industryCtx = document.getElementById('industryChart').getContext('2d');
-            new Chart(industryCtx, {
+    try {
+        // Industry Chart
+        const industryCtx = document.getElementById('industryChart');
+        if (industryCtx) {
+            new Chart(industryCtx.getContext('2d'), {
                 type: 'pie',
                 data: {
                     labels: Object.keys(sampleData.industryData),
@@ -142,10 +202,12 @@
                     }
                 }
             });
+        }
 
-            // Time to Employment Chart (adjusted for smaller sample)
-            const timeCtx = document.getElementById('timeToEmploymentChart').getContext('2d');
-            new Chart(timeCtx, {
+        // Time to Employment Chart
+        const timeCtx = document.getElementById('timeToEmploymentChart');
+        if (timeCtx) {
+            new Chart(timeCtx.getContext('2d'), {
                 type: 'line',
                 data: {
                     labels: ['0-1 months', '2-3 months', '4-6 months', '7-12 months', '12+ months'],
@@ -173,10 +235,34 @@
                     }
                 }
             });
+        }
 
-            // Skills Chart
-            const skillsCtx = document.getElementById('skillsChart').getContext('2d');
-            new Chart(skillsCtx, {
+        // Initialize demographic charts
+        renderAgeGroupChart(globalCSVData);
+        renderGenderChart(globalCSVData);
+        renderCivilStatusChart(globalCSVData);
+        renderSocioEconomicChart(globalCSVData);
+        renderLicensureChart(globalCSVData);
+        renderUnemploymentReasonsChart(globalCSVData);
+        renderAwardsChart(globalCSVData);
+
+        console.log('Employment charts initialized successfully');
+    } catch (error) {
+        console.error('Error initializing employment charts:', error);
+    }
+}
+
+function initializeAnalyticsCharts() {
+    if (globalCSVData.length === 0) {
+        console.log('No CSV data available for analytics charts');
+        return;
+    }
+
+    try {
+        // Main Skills Chart (Radar)
+        const skillsCtx = document.getElementById('skillsChart');
+        if (skillsCtx) {
+            new Chart(skillsCtx.getContext('2d'), {
                 type: 'radar',
                 data: {
                     labels: [
@@ -207,243 +293,588 @@
                     }
                 }
             });
+        }
 
-            // Financial Improvement Factors Chart
-            const financialCtx = document.getElementById('financialFactorsChart').getContext('2d');
-            new Chart(financialCtx, {
-                type: 'horizontalBar',
-                data: {
-                    labels: Object.keys(sampleData.financialImprovementFactors),
-                    datasets: [{
-                        label: 'Number of Alumni',
-                        data: Object.values(sampleData.financialImprovementFactors),
-                        backgroundColor: [
-                            '#667eea', '#764ba2', '#f093fb', '#f5576c',
-                            '#4facfe', '#00f2fe', '#43e97b', '#38f9d7'
-                        ],
-                        borderColor: [
-                            '#5a67d8', '#6b46c1', '#d946ef', '#dc2626',
-                            '#2563eb', '#0891b2', '#059669', '#0d9488'
-                        ],
-                        borderWidth: 2,
-                        borderRadius: 5
-                    }]
-                },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        title: {
-                            display: true,
-                            text: 'Factors Contributing to Financial Improvement (Multiple selections allowed)'
-                        }
-                    },
-                    scales: {
-                        x: {
-                            beginAtZero: true,
-                            max: Math.max(...Object.values(sampleData.financialImprovementFactors)) + 5
-                        }
-                    }
-                }
-            });
+        // Initialize other analytics charts
+        renderSkillProficiencyChart(globalCSVData);
+        renderSkillsUsageChart(globalCSVData);
 
-            // Add this code to display the data in a table
-function renderFinancialFactorsTable() {
-    const factors = sampleData.financialImprovementFactors;
-    let html = `<table class="table table-striped" style="margin-top:16px;">
-        <thead>
-            <tr>
-                <th>Factor</th>
-                <th>Number of Alumni</th>
-            </tr>
-        </thead>
-        <tbody>
-            ${Object.entries(factors).map(([factor, count]) => `
-                <tr>
-                    <td>${factor}</td>
-                    <td>${count}</td>
-                </tr>
-            `).join('')}
-        </tbody>
-    </table>`;
-    // Make sure you have a container with this ID in your HTML
-    document.getElementById('financialFactorsTableContainer').innerHTML = html;
+        console.log('Analytics charts initialized successfully');
+    } catch (error) {
+        console.error('Error initializing analytics charts:', error);
+    }
 }
 
-// Call this after initializing the chart
-renderFinancialFactorsTable();
-        }
-
-        function showTab(tabName) {
-            // Hide all tab contents
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
+// Utility: Load CSV and return Promise of data array
+function loadCSVData(url) {
+    return new Promise((resolve, reject) => {
+        if (typeof Papa !== 'undefined') {
+            Papa.parse(url, {
+                header: true,
+                download: true,
+                skipEmptyLines: true,
+                complete: results => resolve(results.data),
+                error: err => reject(err)
             });
-            
-            // Remove active class from all buttons
-            document.querySelectorAll('.tab-button').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            
-            // Show selected tab
-            document.getElementById(tabName + '-tab').classList.add('active');
-            event.target.classList.add('active');
+        } else {
+            // Fallback if Papa Parse is not available
+            fetch(url)
+                .then(response => response.text())
+                .then(csvText => {
+                    const lines = csvText.split('\n').filter(line => line.trim());
+                    const headers = lines[0].split(',').map(h => h.replace(/(^"|"$)/g, '').trim());
+                    const data = lines.slice(1).map(line => {
+                        const values = line.split(',');
+                        const obj = {};
+                        headers.forEach((h, i) => obj[h] = values[i] ? values[i].replace(/(^"|"$)/g, '').trim() : '');
+                        return obj;
+                    });
+                    resolve(data);
+                })
+                .catch(err => reject(err));
         }
-
-        // Helper: Parse CSV to array of objects
-function parseCSV(csv, delimiter = ',') {
-    const lines = csv.split('\n').filter(line => line.trim());
-    const headers = lines[0].split(delimiter).map(h => h.replace(/(^"|"$)/g, '').trim());
-    return lines.slice(1).map(line => {
-        const values = [];
-        let inQuotes = false, value = '';
-        for (let i = 0; i < line.length; i++) {
-            const char = line[i];
-            if (char === '"' && line[i + 1] === '"') {
-                value += '"'; i++; // escaped quote
-            } else if (char === '"') {
-                inQuotes = !inQuotes;
-            } else if (char === delimiter && !inQuotes) {
-                values.push(value); value = '';
-            } else {
-                value += char;
-            }
-        }
-        values.push(value);
-        const obj = {};
-        headers.forEach((h, i) => obj[h] = values[i] ? values[i].trim() : '');
-        return obj;
     });
 }
 
+// Chart rendering functions
+function renderAgeGroupChart(data) {
+    const ctx = document.getElementById('ageGroupChart');
+    if (!ctx) return;
+    
+    const counts = {};
+    data.forEach(row => {
+        let age = row['AGE'];
+        if (typeof age === 'string') age = age.trim();
+        if (!age) age = 'Unknown';
+        counts[age] = (counts[age] || 0) + 1;
+    });
+    
+    new Chart(ctx.getContext('2d'), {
+        type: 'pie',
+        data: {
+            labels: Object.keys(counts),
+            datasets: [{ 
+                data: Object.values(counts), 
+                backgroundColor: ['#60a5fa', '#fbbf24', '#34d399', '#f87171', '#818cf8', '#a3e635'] 
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+}
+
+function renderGenderChart(data) {
+    const ctx = document.getElementById('genderChart');
+    if (!ctx) return;
+    
+    const counts = {};
+    data.forEach(row => {
+        let gender = row['SEX'];
+        if (typeof gender === 'string') gender = gender.trim();
+        if (!gender) gender = 'Unknown';
+        counts[gender] = (counts[gender] || 0) + 1;
+    });
+    
+    new Chart(ctx.getContext('2d'), {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(counts),
+            datasets: [{ 
+                data: Object.values(counts), 
+                backgroundColor: ['#818cf8', '#f472b6', '#facc15', '#a3e635', '#f87171'] 
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+}
+
+function renderCivilStatusChart(data) {
+    const ctx = document.getElementById('civilStatusChart');
+    if (!ctx) return;
+    
+    const counts = {};
+    data.forEach(row => {
+        let status = row['CIVIL STATUS'];
+        if (typeof status === 'string') status = status.trim();
+        if (!status) status = 'Unknown';
+        counts[status] = (counts[status] || 0) + 1;
+    });
+    
+    new Chart(ctx.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: Object.keys(counts),
+            datasets: [{ 
+                label: 'Civil Status', 
+                data: Object.values(counts), 
+                backgroundColor: '#38bdf8' 
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+}
+
+function renderSocioEconomicChart(data) {
+    const ctx = document.getElementById('socioEconomicChart');
+    if (!ctx) return;
+    
+    const before = {}, after = {};
+    data.forEach(row => {
+        let bef = row['SOCIO-ECONOMIC STATUS (Before Employment)'];
+        let aft = row['SOCIO-ECONOMIC STATUS (After Employment)'];
+        if (typeof bef === 'string') bef = bef.trim();
+        if (!bef) bef = 'Unknown';
+        if (typeof aft === 'string') aft = aft.trim();
+        if (!aft) aft = 'Unknown';
+        before[bef] = (before[bef] || 0) + 1;
+        after[aft] = (after[aft] || 0) + 1;
+    });
+    
+    const allLabels = Array.from(new Set([...Object.keys(before), ...Object.keys(after)]));
+    
+    new Chart(ctx.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: allLabels,
+            datasets: [
+                { 
+                    label: 'Before Employment', 
+                    data: allLabels.map(l => before[l] || 0), 
+                    backgroundColor: '#fbbf24' 
+                },
+                { 
+                    label: 'After Employment', 
+                    data: allLabels.map(l => after[l] || 0), 
+                    backgroundColor: '#34d399' 
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'top' }
+            },
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+}
+
+function renderLicensureChart(data) {
+    const ctx = document.getElementById('licensureChart');
+    if (!ctx) return;
+    
+    let passed = 0, notPassed = 0;
+    data.forEach(row => {
+        let lic = row['LET Passer'] || row['ELIGIBILITY'] || '';
+        if (typeof lic === 'string') lic = lic.trim().toLowerCase();
+        if (lic.includes('let passer') || lic.includes('yes')) passed++;
+        else notPassed++;
+    });
+    
+    new Chart(ctx.getContext('2d'), {
+        type: 'pie',
+        data: {
+            labels: ['LET Passer', 'Not LET Passer'],
+            datasets: [{ 
+                data: [passed, notPassed], 
+                backgroundColor: ['#34d399', '#f87171'] 
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+}
+
+function renderUnemploymentReasonsChart(data) {
+    const ctx = document.getElementById('unemploymentReasonsChart');
+    if (!ctx) return;
+    
+    const counts = {};
+    data.forEach(row => {
+        let reasons = row['PLEASE STATE YOUR REASON WHY YOU ARE NOT EMPLOYED (Check all that apply)'];
+        if (typeof reasons === 'string' && reasons.trim()) {
+            reasons.split(',').forEach(r => {
+                const reason = r.trim();
+                if (reason) counts[reason] = (counts[reason] || 0) + 1;
+            });
+        }
+    });
+    
+    if (Object.keys(counts).length === 0) {
+        counts['No specific reasons provided'] = 10;
+    }
+    
+    new Chart(ctx.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: Object.keys(counts),
+            datasets: [{ 
+                label: 'Reasons', 
+                data: Object.values(counts), 
+                backgroundColor: '#f87171' 
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+}
+
+function renderAwardsChart(data) {
+    const ctx = document.getElementById('awardsChart');
+    if (!ctx) return;
+    
+    const counts = {};
+    data.forEach(row => {
+        let award = row['AWARDS RECEIVED']?.trim() || 'None';
+        if (!award || award.toLowerCase() === 'none') award = 'None';
+        counts[award] = (counts[award] || 0) + 1;
+    });
+    
+    new Chart(ctx.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: Object.keys(counts),
+            datasets: [{ 
+                label: 'Awards', 
+                data: Object.values(counts), 
+                backgroundColor: '#818cf8' 
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+}
+
+function renderSkillProficiencyChart(data) {
+    const ctx = document.getElementById('skillsProficiencyChart');
+    if (!ctx) return;
+    
+    const skills = [
+        'How would you rate your proficiency in the following skills upon graduating? [Communication Skills]',
+        'How would you rate your proficiency in the following skills upon graduating? [Information and Computer Technology Skills]',
+        'How would you rate your proficiency in the following skills upon graduating? [Problem-Solving and Critical Thinking Skills]'
+    ];
+    const levels = ['Very Good (4)', 'Good (3)', 'Fair (2)', 'Poor (1)'];
+    
+    const datasets = skills.map((skill, idx) => {
+        const counts = {};
+        levels.forEach(lvl => counts[lvl] = 0);
+        data.forEach(row => {
+            const val = row[skill]?.trim();
+            if (val && counts.hasOwnProperty(val)) counts[val]++;
+        });
+        
+        return {
+            label: skill.match(/\[(.*?)\]/)?.[1] || `Skill ${idx + 1}`,
+            data: levels.map(lvl => counts[lvl]),
+            backgroundColor: ['#60a5fa', '#fbbf24', '#34d399'][idx]
+        };
+    });
+    
+    new Chart(ctx.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: levels,
+            datasets: datasets
+        },
+        options: { 
+            responsive: true, 
+            plugins: { 
+                legend: { position: 'bottom' } 
+            },
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+}
+
+function renderSkillsUsageChart(data) {
+    const ctx = document.getElementById('skillsUsageChart');
+    if (!ctx) return;
+    
+    const skills = [
+        'How often do you use the following skills in your current job? [Communication Skills]',
+        'How often do you use the following skills in your current job? [Information and Computer Technology Skills]',
+        'How often do you use the following skills in your current job? [Problem-Solving and Critical Thinking Skills]'
+    ];
+    const levels = ['Often (4)', 'Sometimes (3)', 'Rarely (2)', 'Never (1)'];
+    
+    const datasets = skills.map((skill, idx) => {
+        const counts = {};
+        levels.forEach(lvl => counts[lvl] = 0);
+        data.forEach(row => {
+            const val = row[skill]?.trim();
+            if (val && counts.hasOwnProperty(val)) counts[val]++;
+        });
+        
+        return {
+            label: skill.match(/\[(.*?)\]/)?.[1] || `Skill ${idx + 1}`,
+            data: levels.map(lvl => counts[lvl]),
+            backgroundColor: ['#818cf8', '#f472b6', '#facc15'][idx]
+        };
+    });
+    
+    new Chart(ctx.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: levels,
+            datasets: datasets
+        },
+        options: { 
+            responsive: true, 
+            plugins: { 
+                legend: { position: 'bottom' } 
+            },
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+}
+
+// Alumni data loading and filtering functions (keeping existing functionality)
 let alumniRawData = [];
 let alumniFilteredData = [];
 
-// Load and display alumni data from CSV
 function loadAlumniData() {
     fetch('../data/Employability Status of Bachelor of Secondary Education Major in Mathematics Graduates for the Academic Year 2024 (Responses).csv')
         .then(response => response.text())
         .then(csvText => {
-            const rows = csvText.split('\n').slice(1); // skip header
+            const rows = csvText.split('\n');
+            alumniRawData = [];
             let employed = 0, unemployed = 0;
-            const alumni = rows.map(row => {
-                const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                const employedStatus = (cols[16]?.trim() === 'Yes') ? 'Employed' : 'Unemployed';
-                if (employedStatus === 'Employed') employed++;
-                else if (employedStatus === 'Unemployed') unemployed++;
-                return {
-                    name: cols[2]?.replace(/"/g, '').trim(),
-                    year: cols[12]?.trim(),
-                    employed: employedStatus,
-                    position: cols[18]?.replace(/"/g, '').trim(),
-                    company: cols[19]?.replace(/"/g, '').trim()
-                };
-            }).filter(a => a.name);
+            let yearsSet = new Set();
+            let gendersSet = new Set();
+            let civilSet = new Set();
+            let orgTypeSet = new Set();
+            
+            for (let i = 1; i < rows.length; i++) {
+                const cols = rows[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                if (cols.length < 20) continue;
+                const employedStatus = cols[16]?.trim();
+                if (employedStatus === 'Yes') employed++;
+                else if (employedStatus === 'No') unemployed++;
+                const year = cols[12]?.trim();
+                yearsSet.add(year);
+                gendersSet.add(cols[7]?.trim());
+                civilSet.add(cols[9]?.trim());
+                orgTypeSet.add(cols[22]?.trim());
+                alumniRawData.push({
+                    'NAME': cols[2]?.replace(/"/g, '').trim(),
+                    'CONTACT NO.': cols[3]?.trim(),
+                    'FACEBOOK LINK': cols[4]?.trim(),
+                    'EMAIL ADDRESS': cols[5]?.trim(),
+                    'HOME ADDRESS': cols[6]?.trim(),
+                    'SEX': cols[7]?.trim(),
+                    'AGE': cols[8]?.trim(),
+                    'CIVIL STATUS': cols[9]?.trim(),
+                    'YEAR GRADUATED': year,
+                    'ARE YOU CURRENTLY EMPLOYED?': employedStatus,
+                    'POSITION': cols[18]?.replace(/"/g, '').trim(),
+                    'COMPANY': cols[19]?.replace(/"/g, '').trim(),
+                    'ORG TYPE': cols[22]?.trim()
+                });
+            }
 
-            // Update dashboard counts dynamically
-            document.getElementById('totalAlumni').textContent = alumni.length;
-            document.getElementById('employedCount').textContent = employed;
-            document.getElementById('unemployedCount').textContent = unemployed;
-            document.getElementById('employmentRate').textContent = Math.round((employed / alumni.length) * 100) + '%';
-
-            const tbody = document.getElementById('alumniTableBody');
-            tbody.innerHTML = '';
-            alumni.forEach((a, idx) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${idx + 1}</td>
-                    <td>${a.name}</td>
-                    <td>${a.year}</td>
-                    <td>${a.employed}</td>
-                    <td>${a.position}</td>
-                    <td>${a.company}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-
+            // Populate filters
+            populateFilters(yearsSet, gendersSet, civilSet, orgTypeSet);
+            
+            alumniFilteredData = alumniRawData;
+            renderAlumniCards(alumniFilteredData);
             document.getElementById('alumniLoading').style.display = 'none';
-            document.getElementById('alumniTable').style.display = '';
+        })
+        .catch(error => {
+            console.error('Error loading alumni data:', error);
+            document.getElementById('alumniLoading').innerHTML = 'Error loading alumni data';
         });
 }
 
-// Call this function when the page loads or when the Alumni tab is shown
-document.addEventListener('DOMContentLoaded', loadAlumniData);
+function populateFilters(yearsSet, gendersSet, civilSet, orgTypeSet) {
+    const yearFilter = document.getElementById('yearFilter');
+    yearFilter.innerHTML = '<option value="">All Years</option>';
+    Array.from(yearsSet).sort().forEach(year => {
+        if (year) {
+            const option = document.createElement('option');
+            option.value = year;
+            option.textContent = year;
+            yearFilter.appendChild(option);
+        }
+    });
+    
+    const genderFilter = document.getElementById('genderFilter');
+    genderFilter.innerHTML = '<option value="">All Genders</option>';
+    Array.from(gendersSet).sort().forEach(gender => {
+        if (gender) {
+            const option = document.createElement('option');
+            option.value = gender;
+            option.textContent = gender;
+            genderFilter.appendChild(option);
+        }
+    });
+    
+    const civilStatusFilter = document.getElementById('civilStatusFilter');
+    civilStatusFilter.innerHTML = '<option value="">All Status</option>';
+    Array.from(civilSet).sort().forEach(civil => {
+        if (civil) {
+            const option = document.createElement('option');
+            option.value = civil;
+            option.textContent = civil;
+            civilStatusFilter.appendChild(option);
+        }
+    });
+    
+    const orgTypeFilter = document.getElementById('orgTypeFilter');
+    orgTypeFilter.innerHTML = '<option value="">All Types</option>';
+    Array.from(orgTypeSet).sort().forEach(type => {
+        if (type) {
+            const option = document.createElement('option');
+            option.value = type;
+            option.textContent = type;
+            orgTypeFilter.appendChild(option);
+        }
+    });
+}
 
-// Filter alumni by year and employment status
+function renderAlumniCards(data) {
+    const grid = document.getElementById('alumniCardsGrid');
+    if (!grid) return;
+    
+    grid.innerHTML = '';
+    const countElement = document.getElementById('alumniCount');
+    if (countElement) {
+        countElement.textContent = `Showing ${data.length} of ${alumniRawData.length} records`;
+    }
+    
+    data.forEach((a, idx) => {
+        const card = document.createElement('div');
+        card.className = 'alumni-card';
+        card.innerHTML = `
+            <div class="alumni-header">${a['NAME']}</div>
+            <div class="alumni-tags">
+                <span class="alumni-tag ${a['ARE YOU CURRENTLY EMPLOYED?'] === 'Yes' ? 'employed' : 'unemployed'}">${a['ARE YOU CURRENTLY EMPLOYED?'] === 'Yes' ? 'Employed' : 'Unemployed'}</span>
+                <span class="alumni-tag">Class of ${a['YEAR GRADUATED']}</span>
+                <span class="alumni-tag">${a['SEX']}</span>
+            </div>
+            <div class="alumni-details">
+                <div><span class="icon">&#128188;</span> ${a['POSITION'] || '—'}</div>
+                <div><span class="icon">&#127891;</span> ${a['COMPANY'] || '—'}</div>
+                <div><span class="icon">&#127968;</span> ${a['HOME ADDRESS'] || '—'}</div>
+                <div><span class="icon">&#128222;</span> ${a['CONTACT NO.'] || '—'}
+                    ${a['EMAIL ADDRESS'] ? `<span style='margin-left:10px;'>&#9993; <a href='mailto:${a['EMAIL ADDRESS']}' target='_blank'>Email</a></span>` : ''}
+                    ${a['FACEBOOK LINK'] ? `<span style='margin-left:10px;'>&#128100; <a href='${a['FACEBOOK LINK']}' target='_blank'>Facebook</a></span>` : ''}
+                </div>
+            </div>
+            <div class="alumni-actions">
+                <button class="btn" onclick="alert('Full details for ${a['NAME']} coming soon!')">&#128065; View Full Details</button>
+            </div>
+        `;
+        grid.appendChild(card);
+    });
+}
+
 function filterAlumni() {
-    const year = document.getElementById('yearFilter').value;
-    const employment = document.getElementById('employmentFilter').value;
+    const year = document.getElementById('yearFilter')?.value || '';
+    const employment = document.getElementById('employmentFilter')?.value || '';
+    const gender = document.getElementById('genderFilter')?.value || '';
+    const civil = document.getElementById('civilStatusFilter')?.value || '';
+    const orgType = document.getElementById('orgTypeFilter')?.value || '';
+    const search = document.getElementById('searchInput')?.value.trim().toLowerCase() || '';
+    
     alumniFilteredData = alumniRawData.filter(a => {
         let match = true;
         if (year) match = match && a['YEAR GRADUATED'] === year;
-        if (employment) {
-            const employed = a['ARE YOU CURRENTLY EMPLOYED?'] && a['ARE YOU CURRENTLY EMPLOYED?'].toLowerCase().startsWith('y');
-            match = match && ((employment === 'Yes' && employed) || (employment === 'No' && !employed));
+        if (employment) match = match && a['ARE YOU CURRENTLY EMPLOYED?'] === employment;
+        if (gender) match = match && a['SEX'] === gender;
+        if (civil) match = match && a['CIVIL STATUS'] === civil;
+        if (orgType) match = match && a['ORG TYPE'] === orgType;
+        if (search) {
+            match = match && (
+                a['NAME'].toLowerCase().includes(search) ||
+                (a['COMPANY'] && a['COMPANY'].toLowerCase().includes(search)) ||
+                (a['POSITION'] && a['POSITION'].toLowerCase().includes(search))
+            );
         }
         return match;
     });
-    displayAlumniData(alumniFilteredData);
+    renderAlumniCards(alumniFilteredData);
 }
 
-// PHP Integration Functions (to be implemented on server-side)
-        function connectDatabase() {
-            // This would be implemented in PHP
-            const php = `
-            <?php
-            $servername = "localhost";
-            $username = "root";
-            $password = "";
-            $dbname = "alumni_tracer_study";
+// Event listeners for filters
+document.addEventListener('DOMContentLoaded', function() {
+    // Add event listeners after DOM is loaded
+    setTimeout(() => {
+        const searchInput = document.getElementById('searchInput');
+        const yearFilter = document.getElementById('yearFilter');
+        const employmentFilter = document.getElementById('employmentFilter');
+        const genderFilter = document.getElementById('genderFilter');
+        const civilStatusFilter = document.getElementById('civilStatusFilter');
+        const orgTypeFilter = document.getElementById('orgTypeFilter');
 
-            try {
-                $pdo = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
-                $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-                return $pdo;
-            } catch(PDOException $e) {
-                die("Connection failed: " . $e->getMessage());
-            }
-            ?>
-            `;
-        }
+        if (searchInput) searchInput.addEventListener('input', filterAlumni);
+        if (yearFilter) yearFilter.addEventListener('change', filterAlumni);
+        if (employmentFilter) employmentFilter.addEventListener('change', filterAlumni);
+        if (genderFilter) genderFilter.addEventListener('change', filterAlumni);
+        if (civilStatusFilter) civilStatusFilter.addEventListener('change', filterAlumni);
+        if (orgTypeFilter) orgTypeFilter.addEventListener('change', filterAlumni);
+    }, 1000);
+});
 
-        function fetchDashboardStats() {
-            // This would be an AJAX call to a PHP endpoint
-            const phpEndpoint = `
-            <?php
-            include 'db_connection.php';
-            
-            // Get total alumni count
-            $stmt = $pdo->query("SELECT COUNT(*) as total FROM alumni");
-            $totalAlumni = $stmt->fetch()['total'];
-            
-            // Get employment statistics
-            $stmt = $pdo->query("SELECT currently_employed, COUNT(*) as count FROM alumni GROUP BY currently_employed");
-            $employmentStats = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
-            // Get average employment time
-            $stmt = $pdo->query("SELECT AVG(months_waited_for_employment) as avg_time FROM alumni WHERE currently_employed = 'Yes'");
-            $avgEmploymentTime = $stmt->fetch()['avg_time'];
-            
-            // Get financial improvement factors
-            $stmt = $pdo->query("
-                SELECT fif.factor_name, COUNT(aiff.alumni_id) as count 
-                FROM financial_improvement_factors fif
-                LEFT JOIN alumni_financial_improvement_factors aiff ON fif.id = aiff.factor_id
-                GROUP BY fif.id, fif.factor_name
-                ORDER BY count DESC
-            ");
-            $financialFactors = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
-            // Return JSON response
-            echo json_encode([
-                'total_alumni' => $totalAlumni,
-                'employment_stats' => $employmentStats,
-                'avg_employment_time' => round($avgEmploymentTime, 1),
-                'financial_factors' => $financialFactors
-            ]);
-            ?>
-            `;
-        }
+function clearAlumniFilters() {
+    const searchInput = document.getElementById('searchInput');
+    const yearFilter = document.getElementById('yearFilter');
+    const employmentFilter = document.getElementById('employmentFilter');
+    const genderFilter = document.getElementById('genderFilter');
+    const civilStatusFilter = document.getElementById('civilStatusFilter');
+    const orgTypeFilter = document.getElementById('orgTypeFilter');
+
+    if (searchInput) searchInput.value = '';
+    if (yearFilter) yearFilter.value = '';
+    if (employmentFilter) employmentFilter.value = '';
+    if (genderFilter) genderFilter.value = '';
+    if (civilStatusFilter) civilStatusFilter.value = '';
+    if (orgTypeFilter) orgTypeFilter.value = '';
+    
+    filterAlumni();
+}
+
+// Make showTab function global so it can be called from HTML
+window.showTab = showTab;
+window.clearAlumniFilters = clearAlumniFilters;
