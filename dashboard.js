@@ -237,11 +237,7 @@ function showTab(tabName, event) {
 // Load CSV data for charts
 async function loadCSVDataForCharts() {
     try {
-        const response = await fetch('./data/survey_data.json');
-        if (!response.ok) {
-            throw new Error('Failed to load data');
-        }
-        globalCSVData = await response.json();
+        globalCSVData = await loadCSVData('data/Employability Status of Bachelor of Secondary Education Major in Mathematics Graduates for the Academic Year 2024 (Responses).csv');
         
         // Fix: Trim all keys in each row to avoid issues with extra spaces in CSV headers
         globalCSVData = globalCSVData.map(row => {
@@ -779,8 +775,7 @@ let alumniRawData = [];
 let alumniFilteredData = [];
 
 function loadAlumniData() {
-    fetch('./data/survey_data.json')
-        .then(response => response.json())
+    loadCSVData('data/Employability Status of Bachelor of Secondary Education Major in Mathematics Graduates for the Academic Year 2024 (Responses).csv')
         .then(data => {
             alumniRawData = [];
             let employed = 0, unemployed = 0;
