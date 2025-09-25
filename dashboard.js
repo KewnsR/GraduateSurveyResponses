@@ -53,69 +53,156 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function loadDashboardData() {
-    // Update statistics cards
-    document.getElementById('totalAlumni').textContent = sampleData.totalAlumni.toLocaleString();
-    document.getElementById('employmentRate').textContent = 
-        Math.round((sampleData.employedAlumni / sampleData.totalAlumni) * 100) + '%';
-    document.getElementById('avgEmployment').textContent = sampleData.avgEmploymentTime + ' months';
-    document.getElementById('recentGraduates').textContent = sampleData.recentGraduates;
-    
-    document.getElementById('employedCount').textContent = sampleData.employedAlumni;
-    document.getElementById('unemployedCount').textContent = sampleData.totalAlumni - sampleData.employedAlumni;
+    if (globalCSVData.length > 0) {
+        const total = globalCSVData.length;
+        const employed = globalCSVData.filter(row => row['ARE YOU CURRENTLY EMPLOYED?']?.trim() === 'Yes').length;
+        const recent = globalCSVData.filter(row => row['YEAR GRADUATED']?.trim() === '2024').length;
+        
+        // Compute avg months
+        const times = globalCSVData.map(row => {
+            const t = row['HOW MANY MONTHS DID YOU WAIT BEFORE OBTAINING YOUR FIRST EMPLOYMENT AFTER GRADUATION?']?.trim();
+            if (t === 'Less than 3 months') return 1;
+            if (t === '3-6 months') return 4.5;
+            if (t === '7-12 months') return 9.5;
+            if (t === 'More than 12 months') return 15;
+            return 0;
+        }).filter(t => t > 0);
+        const avgTime = times.length > 0 ? (times.reduce((a,b)=>a+b,0) / times.length).toFixed(1) : 0;
+        
+        document.getElementById('totalAlumni').textContent = total.toLocaleString();
+        document.getElementById('employmentRate').textContent = 
+            Math.round((employed / total) * 100) + '%';
+        document.getElementById('avgEmployment').textContent = avgTime + ' months';
+        document.getElementById('recentGraduates').textContent = recent;
+        
+        document.getElementById('employedCount').textContent = employed;
+        document.getElementById('unemployedCount').textContent = total - employed;
+    } else {
+        // Fallback to sample
+        document.getElementById('totalAlumni').textContent = sampleData.totalAlumni.toLocaleString();
+        document.getElementById('employmentRate').textContent = 
+            Math.round((sampleData.employedAlumni / sampleData.totalAlumni) * 100) + '%';
+        document.getElementById('avgEmployment').textContent = sampleData.avgEmploymentTime + ' months';
+        document.getElementById('recentGraduates').textContent = sampleData.recentGraduates;
+        
+        document.getElementById('employedCount').textContent = sampleData.employedAlumni;
+        document.getElementById('unemployedCount').textContent = sampleData.totalAlumni - sampleData.employedAlumni;
+    }
 }
 
 function initializeOverviewCharts() {
     // Employment Status Chart
     const employmentCtx = document.getElementById('employmentChart').getContext('2d');
-    new Chart(employmentCtx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Employed', 'Unemployed'],
-            datasets: [{
-                data: [sampleData.employedAlumni, sampleData.totalAlumni - sampleData.employedAlumni],
-                backgroundColor: ['#10b981', '#ef4444'],
-                borderWidth: 0
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'bottom'
+    if (globalCSVData.length > 0) {
+        const employed = globalCSVData.filter(row => row['ARE YOU CURRENTLY EMPLOYED?']?.trim() === 'Yes').length;
+        const total = globalCSVData.length;
+        new Chart(employmentCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Employed', 'Unemployed'],
+                datasets: [{
+                    data: [employed, total - employed],
+                    backgroundColor: ['#10b981', '#ef4444'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
                 }
             }
-        }
-    });
+        });
+    } else {
+        // Fallback
+        new Chart(employmentCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Employed', 'Unemployed'],
+                datasets: [{
+                    data: [sampleData.employedAlumni, sampleData.totalAlumni - sampleData.employedAlumni],
+                    backgroundColor: ['#10b981', '#ef4444'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    }
 
     // Graduates by Year Chart
     const graduatesCtx = document.getElementById('graduatesChart').getContext('2d');
-    new Chart(graduatesCtx, {
-        type: 'bar',
-        data: {
-            labels: Object.keys(sampleData.graduatesByYear),
-            datasets: [{
-                label: 'Graduates',
-                data: Object.values(sampleData.graduatesByYear),
-                backgroundColor: 'rgba(102, 126, 234, 0.8)',
-                borderColor: '#667eea',
-                borderWidth: 2,
-                borderRadius: 8
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    display: false
-                }
+    if (globalCSVData.length > 0) {
+        const yearCounts = {};
+        globalCSVData.forEach(row => {
+            const year = row['YEAR GRADUATED']?.trim();
+            if (year) yearCounts[year] = (yearCounts[year] || 0) + 1;
+        });
+        new Chart(graduatesCtx, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(yearCounts).sort(),
+                datasets: [{
+                    label: 'Graduates',
+                    data: Object.values(yearCounts),
+                    backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                    borderColor: '#667eea',
+                    borderWidth: 2,
+                    borderRadius: 8
+                }]
             },
-            scales: {
-                y: {
-                    beginAtZero: true
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
                 }
             }
-        }
-    });
+        });
+    } else {
+        // Fallback
+        new Chart(graduatesCtx, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(sampleData.graduatesByYear),
+                datasets: [{
+                    label: 'Graduates',
+                    data: Object.values(sampleData.graduatesByYear),
+                    backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                    borderColor: '#667eea',
+                    borderWidth: 2,
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
 }
 
 function showTab(tabName, event) {
@@ -150,8 +237,11 @@ function showTab(tabName, event) {
 // Load CSV data for charts
 async function loadCSVDataForCharts() {
     try {
-        const csvUrl = 'data/Employability Status of Bachelor of Secondary Education Major in Mathematics Graduates for the Academic Year 2024 (Responses).csv';
-        globalCSVData = await loadCSVData(csvUrl);
+        const response = await fetch('php/get_data.php');
+        if (!response.ok) {
+            throw new Error('Failed to load data');
+        }
+        globalCSVData = await response.json();
         
         // Fix: Trim all keys in each row to avoid issues with extra spaces in CSV headers
         globalCSVData = globalCSVData.map(row => {
@@ -177,18 +267,25 @@ function initializeEmploymentCharts() {
     }
 
     try {
-        // Industry Chart
+        // Industry Chart - compute from data
+        const industryCounts = {};
+        globalCSVData.forEach(row => {
+            const industry = row['WHAT NATURE OF BUSINESS DOES YOUR COMPANY ENGAGE IN?']?.trim();
+            if (industry) {
+                industryCounts[industry] = (industryCounts[industry] || 0) + 1;
+            }
+        });
         const industryCtx = document.getElementById('industryChart');
         if (industryCtx) {
             new Chart(industryCtx.getContext('2d'), {
                 type: 'pie',
                 data: {
-                    labels: Object.keys(sampleData.industryData),
+                    labels: Object.keys(industryCounts),
                     datasets: [{
-                        data: Object.values(sampleData.industryData),
+                        data: Object.values(industryCounts),
                         backgroundColor: [
                             '#667eea', '#764ba2', '#f093fb', '#f5576c',
-                            '#4facfe', '#00f2fe'
+                            '#4facfe', '#00f2fe', '#43e97b', '#38f9d7'
                         ],
                         borderWidth: 0
                     }]
@@ -204,21 +301,28 @@ function initializeEmploymentCharts() {
             });
         }
 
-        // Time to Employment Chart
+        // Time to Employment Chart - compute from data
+        const timeCounts = {};
+        globalCSVData.forEach(row => {
+            const time = row['HOW MANY MONTHS DID YOU WAIT BEFORE OBTAINING YOUR FIRST EMPLOYMENT AFTER GRADUATION?']?.trim();
+            if (time) {
+                timeCounts[time] = (timeCounts[time] || 0) + 1;
+            }
+        });
         const timeCtx = document.getElementById('timeToEmploymentChart');
         if (timeCtx) {
+            const labels = Object.keys(timeCounts).sort();
             new Chart(timeCtx.getContext('2d'), {
-                type: 'line',
+                type: 'bar',
                 data: {
-                    labels: ['0-1 months', '2-3 months', '4-6 months', '7-12 months', '12+ months'],
+                    labels: labels,
                     datasets: [{
                         label: 'Number of Alumni',
-                        data: [15, 18, 10, 4, 1],
+                        data: labels.map(l => timeCounts[l]),
                         borderColor: '#667eea',
-                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.4
+                        backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                        borderWidth: 2,
+                        borderRadius: 8
                     }]
                 },
                 options: {
@@ -675,10 +779,9 @@ let alumniRawData = [];
 let alumniFilteredData = [];
 
 function loadAlumniData() {
-    fetch('data/Employability Status of Bachelor of Secondary Education Major in Mathematics Graduates for the Academic Year 2024 (Responses).csv')
-        .then(response => response.text())
-        .then(csvText => {
-            const rows = csvText.split('\n');
+    fetch('php/get_data.php')
+        .then(response => response.json())
+        .then(data => {
             alumniRawData = [];
             let employed = 0, unemployed = 0;
             let yearsSet = new Set();
@@ -686,41 +789,39 @@ function loadAlumniData() {
             let civilSet = new Set();
             let orgTypeSet = new Set();
             
-            for (let i = 1; i < rows.length; i++) {
-                const cols = rows[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                if (cols.length < 20) continue;
-                const employedStatus = cols[16]?.trim();
+            data.forEach(row => {
+                const employedStatus = row['ARE YOU CURRENTLY EMPLOYED?']?.trim();
                 if (employedStatus === 'Yes') employed++;
                 else if (employedStatus === 'No') unemployed++;
-                const year = cols[12]?.trim();
+                const year = row['YEAR GRADUATED']?.trim();
                 yearsSet.add(year);
-                gendersSet.add(cols[7]?.trim());
-                civilSet.add(cols[9]?.trim());
-                orgTypeSet.add(cols[22]?.trim());
+                gendersSet.add(row['SEX']?.trim());
+                civilSet.add(row['CIVIL STATUS']?.trim());
+                orgTypeSet.add(row['TYPE OF ORGANIZATION']?.trim());
                 alumniRawData.push({
-                    'NAME': cols[2]?.replace(/"/g, '').trim(),
-                    'CONTACT NO.': cols[3]?.trim(),
-                    'FACEBOOK LINK': cols[4]?.trim(),
-                    'EMAIL ADDRESS': cols[5]?.trim(),
-                    'HOME ADDRESS': cols[6]?.trim(),
-                    'SEX': cols[7]?.trim(),
-                    'AGE': cols[8]?.trim(),
-                    'CIVIL STATUS': cols[9]?.trim(),
+                    'NAME': row['LAST NAME, FIRST NAME, MIDDLE INITIAL (Ex. DELA CRUZ, JUAN A.)']?.trim(),
+                    'CONTACT NO.': row['CONTACT NO.']?.trim(),
+                    'FACEBOOK LINK': row['FACEBOOK LINK']?.trim(),
+                    'EMAIL ADDRESS': row['EMAIL ADDRESS']?.trim(),
+                    'HOME ADDRESS': row['HOME ADDRESS']?.trim(),
+                    'SEX': row['SEX']?.trim(),
+                    'AGE': row['AGE']?.trim(),
+                    'CIVIL STATUS': row['CIVIL STATUS']?.trim(),
                     'YEAR GRADUATED': year,
                     'ARE YOU CURRENTLY EMPLOYED?': employedStatus,
-                    'POSITION': cols[18]?.replace(/"/g, '').trim(),
-                    'COMPANY': cols[19]?.replace(/"/g, '').trim(),
-                    'ORG TYPE': cols[22]?.trim(),
+                    'POSITION': row['CURRENT JOB POSITION/DESIGNATION']?.trim(),
+                    'COMPANY': row['NAME OF COMPANY/AGENCY/ORGANIZATION']?.trim(),
+                    'ORG TYPE': row['TYPE OF ORGANIZATION']?.trim(),
                     // Additional info from CSV for full details
-                    'LET PASSER / ELIGIBILITY': (cols[20]?.trim() || cols[21]?.trim() || ''),
-                    'AWARDS RECEIVED': cols[23]?.trim(),
-                    'SOCIO-ECONOMIC STATUS (Before Employment)': cols[24]?.trim(),
-                    'SOCIO-ECONOMIC STATUS (After Employment)': cols[25]?.trim(),
-                    'REASON FOR UNEMPLOYMENT': cols[26]?.trim(),
-                    'SKILLS PROFICIENCY': `${cols[27]?.trim() || ''} ${cols[28]?.trim() || ''} ${cols[29]?.trim() || ''}`,
-                    'SKILLS USAGE': `${cols[30]?.trim() || ''} ${cols[31]?.trim() || ''} ${cols[32]?.trim() || ''}`
+                    'LET PASSER / ELIGIBILITY': (row['ELIGIBILITY']?.trim() || ''),
+                    'AWARDS RECEIVED': row['AWARDS RECEIVED']?.trim(),
+                    'SOCIO-ECONOMIC STATUS (Before Employment)': row['SOCIO-ECONOMIC STATUS (Before Employment)']?.trim(),
+                    'SOCIO-ECONOMIC STATUS (After Employment)': row['SOCIO-ECONOMIC STATUS (After Employment)']?.trim(),
+                    'REASON FOR UNEMPLOYMENT': row['PLEASE STATE YOUR REASON WHY YOU ARE NOT EMPLOYED (Check all that apply)']?.trim(),
+                    'SKILLS PROFICIENCY': `${row['How would you rate your proficiency in the following skills upon graduating? [Communication Skills]']?.trim() || ''} ${row['How would you rate your proficiency in the following skills upon graduating? [Information and Computer Technology Skills]']?.trim() || ''}`,
+                    'SKILLS USAGE': `${row['How often do you use the following skills in your current job? [Communication Skills]']?.trim() || ''} ${row['How often do you use the following skills in your current job? [Information and Computer Technology Skills]']?.trim() || ''}`
                 });
-            }
+            });
 
             // Populate filters
             populateFilters(yearsSet, gendersSet, civilSet, orgTypeSet);
