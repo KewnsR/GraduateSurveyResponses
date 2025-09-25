@@ -237,7 +237,7 @@ function showTab(tabName, event) {
 // Load CSV data for charts
 async function loadCSVDataForCharts() {
     try {
-        const response = await fetch('/GraduateSurveyResponses/data/survey_data.json');
+        const response = await fetch('./data/survey_data.json');
         if (!response.ok) {
             throw new Error('Failed to load data');
         }
@@ -779,7 +779,7 @@ let alumniRawData = [];
 let alumniFilteredData = [];
 
 function loadAlumniData() {
-    fetch('/GraduateSurveyResponses/data/survey_data.json')
+    fetch('./data/survey_data.json')
         .then(response => response.json())
         .then(data => {
             alumniRawData = [];
