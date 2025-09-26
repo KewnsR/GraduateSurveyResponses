@@ -1035,6 +1035,15 @@ function showAlumniDetailsModal(alumni) {
     });
     html += '</div>';
     body.innerHTML = html;
+    
+    // Add click event for mobile tooltip support
+    const detailItems = body.querySelectorAll('.detail-item[title]');
+    detailItems.forEach(item => {
+        item.addEventListener('click', () => {
+            alert(item.getAttribute('title'));
+        });
+    });
+    
     modal.style.display = 'block';
 }
 
