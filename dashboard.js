@@ -9,27 +9,21 @@ const dbConfig = {
 // Sample data for 54 respondents
 const sampleData = {
     totalAlumni: 54,
-    employedAlumni: 45,
-    avgEmploymentTime: 2.6,
+    employedAlumni: 46,
+    avgEmploymentTime: 2.8,
     recentGraduates: 20,
     graduatesByYear: {
-        '2022': 12,
+        '2022': 14,
         '2023': 22,
         '2024': 20
     },
     industryData: {
-        'Education and Training': 27,
-        'Finance, Real Estate, and Business Services': 6,
-        'BPO': 2,
-        'Food': 1,
-        'Community and Personal Services': 1,
-        'NGO': 1,
-        'Food Industry': 1,
-        'Health and Social Services': 2,
-        'Transportation and Communication': 1,
-        'Information and Technology Services': 1,
-        'Hospitality and Tourism': 1,
-        'Public Administration and Security': 1
+        'Education': 22,
+        'Technology': 8,
+        'Government': 7,
+        'Healthcare': 5,
+        'Business': 4,
+        'Others': 2
     },
     financialImprovementFactors: {
         'Higher salary/income': 35,
