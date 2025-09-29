@@ -6,9 +6,9 @@ const dbConfig = {
     database: 'alumni_tracer_study'
 };
 
-// Sample data for 56 respondents
+// Sample data for 54 respondents
 const sampleData = {
-    totalAlumni: 56,
+    totalAlumni: 54,
     employedAlumni: 46,
     avgEmploymentTime: 2.8,
     recentGraduates: 20,

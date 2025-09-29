@@ -17,7 +17,7 @@
         </button>
         <div class="header">
             <h1>Alumni Tracer Study Dashboard</h1>
-            <p>Comprehensive analysis of graduate employment and outcomes (56 Respondents)</p>
+            <p>Comprehensive analysis of graduate employment and outcomes (54 Respondents)</p>
         </div>
 
         <!-- Statistics Cards -->
@@ -71,7 +71,7 @@
         <!-- Tab Contents -->
         <div id="overview-tab" class="tab-content active">
             <h2>Dashboard Overview</h2>
-            <p>Welcome to the Alumni Tracer Study Dashboard. This system tracks the employment outcomes and career progression of 56 program graduates who responded to the survey.</p>
+            <p>Welcome to the Alumni Tracer Study Dashboard. This system tracks the employment outcomes and career progression of 54 program graduates who responded to the survey.</p>
             
             <div style="margin-top: 30px;">
                 <h3>Key Metrics</h3>
