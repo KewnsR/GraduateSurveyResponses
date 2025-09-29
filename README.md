@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project is an interactive web-based dashboard for analyzing the employability and career outcomes of Bachelor of Secondary Education Major in Mathematics graduates from the Academic Year 2024. The dashboard visualizes survey responses from 56 graduates, providing insights into employment rates, industry distribution, skills proficiency, and socio-economic mobility.
+This project is an interactive web-based dashboard for analyzing the employability and career outcomes of Bachelor of Secondary Education Major in Mathematics graduates from the Academic Year 2024. The dashboard visualizes survey responses from 54 graduates, providing insights into employment rates, industry distribution, skills proficiency, and socio-economic mobility.
 
 ## Features
 
@@ -40,8 +40,6 @@ This project is an interactive web-based dashboard for analyzing the employabili
 - **Frontend**: HTML5, CSS3, JavaScript (ES6+)
 - **Data Visualization**: Chart.js library
 - **Data Parsing**: PapaParse for CSV processing
-- **Backend**: PHP (minimal, for potential database integration)
-- **Database**: MySQL (configured but not actively used; data loaded from CSV)
 - **Styling**: Custom CSS with gradients and animations
 - **Icons**: Unicode emojis for visual elements
 
@@ -68,7 +66,8 @@ This project is an interactive web-based dashboard for analyzing the employabili
    │   └── Employability Status of Bachelor of Secondary Education Major in Mathematics Graduates for the Academic Year 2024 (Responses).csv
    └── php/
        ├── dashboard.php      # Legacy PHP version (not used)
-       └── db.php            # Database configuration (not used)
+       ├── db.php            # Database configuration (not used)
+       └── get_data.php      # PHP endpoint for CSV data (not used)
    ```
 
 3. **Access the Dashboard**
@@ -128,7 +127,7 @@ The dashboard analyzes responses from a survey of 56 Bachelor of Secondary Educa
 
 ## Key Insights from the Data
 
-- **Employment Rate**: 82% of respondents are currently employed
+- **Employment Rate**: 85% of respondents are currently employed
 - **Average Time to Employment**: 2.8 months
 - **Primary Industries**: Education (22), Technology (8), Government (7)
 - **Skills Usage**: Communication and ICT skills are most frequently used in current jobs

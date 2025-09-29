@@ -766,8 +766,16 @@ function renderSkillProficiencyChart(data) {
     
     const skills = [
         'How would you rate your proficiency in the following skills upon graduating? [Communication Skills]',
+        'How would you rate your proficiency in the following skills upon graduating? [Human Relations Skills]',
         'How would you rate your proficiency in the following skills upon graduating? [Information and Computer Technology Skills]',
-        'How would you rate your proficiency in the following skills upon graduating? [Problem-Solving and Critical Thinking Skills]'
+        'How would you rate your proficiency in the following skills upon graduating? [Audio-Visual Skills]',
+        'How would you rate your proficiency in the following skills upon graduating? [Problem-Solving and Critical Thinking Skills]',
+        'How would you rate your proficiency in the following skills upon graduating? [Comprehension and Analytical Skills]',
+        'How would you rate your proficiency in the following skills upon graduating? [Teaching and Lesson Planning Skills]',
+        'How would you rate your proficiency in the following skills upon graduating? [Time Management and Leadership Skills]',
+        'How would you rate your proficiency in the following skills upon graduating? [Research and Ethical Skills]',
+        'How would you rate your proficiency in the following skills upon graduating? [Test Construction and Assessment Skills]',
+        'How would you rate your proficiency in the following skills upon graduating? [Creativity, Innovation, and Adaptability]'
     ];
     const levels = ['Very Good (4)', 'Good (3)', 'Fair (2)', 'Poor (1)'];
     
@@ -782,7 +790,10 @@ function renderSkillProficiencyChart(data) {
         return {
             label: skill.match(/\[(.*?)\]/)?.[1] || `Skill ${idx + 1}`,
             data: levels.map(lvl => counts[lvl]),
-            backgroundColor: ['#60a5fa', '#fbbf24', '#34d399'][idx]
+            backgroundColor: [
+                '#60a5fa', '#fbbf24', '#34d399', '#f87171', '#a78bfa',
+                '#fb7185', '#4ade80', '#fbbf24', '#60a5fa', '#f87171', '#a78bfa'
+            ][idx % 11]
         };
     });
     
@@ -810,8 +821,16 @@ function renderSkillsUsageChart(data) {
     
     const skills = [
         'How often do you use the following skills in your current job? [Communication Skills]',
+        'How often do you use the following skills in your current job? [Human Relations Skills]',
         'How often do you use the following skills in your current job? [Information and Computer Technology Skills]',
-        'How often do you use the following skills in your current job? [Problem-Solving and Critical Thinking Skills]'
+        'How often do you use the following skills in your current job? [Audio-Visual Skills]',
+        'How often do you use the following skills in your current job? [Problem-Solving and Critical Thinking Skills]',
+        'How often do you use the following skills in your current job? [Comprehension and Analytical Skills]',
+        'How often do you use the following skills in your current job? [Teaching and Lesson Planning Skills]',
+        'How often do you use the following skills in your current job? [Time Management and Leadership Skills]',
+        'How often do you use the following skills in your current job? [Research and Ethical Skills]',
+        'How often do you use the following skills in your current job? [Test Construction and Assessment Skills]',
+        'How often do you use the following skills in your current job? [Creativity, Innovation, and Adaptability]'
     ];
     const levels = ['Often (4)', 'Sometimes (3)', 'Rarely (2)', 'Never (1)'];
     
@@ -829,7 +848,10 @@ function renderSkillsUsageChart(data) {
         return {
             label: skill.match(/\[(.*?)\]/)?.[1] || `Skill ${idx + 1}`,
             data: levels.map(lvl => counts[lvl]),
-            backgroundColor: ['#818cf8', '#f472b6', '#facc15'][idx]
+            backgroundColor: [
+                '#818cf8', '#f472b6', '#facc15', '#fb7185', '#4ade80',
+                '#fbbf24', '#60a5fa', '#f87171', '#a78bfa', '#fb7185', '#4ade80'
+            ][idx % 11]
         };
     });
     
@@ -894,8 +916,14 @@ function loadAlumniData() {
                     'SOCIO-ECONOMIC STATUS (Before Employment)': row['SOCIO-ECONOMIC STATUS (Before Employment)']?.trim() || '',
                     'SOCIO-ECONOMIC STATUS (After Employment)': row['SOCIO-ECONOMIC STATUS (After Employment)']?.trim() || '',
                     'REASON FOR UNEMPLOYMENT': row['PLEASE STATE YOUR REASON WHY YOU ARE NOT EMPLOYED (Check all that apply)']?.trim() || '',
-                    'SKILLS PROFICIENCY': `${row['How would you rate your proficiency in the following skills upon graduating? [Communication Skills]']?.trim() || ''} ${row['How would you rate your proficiency in the following skills upon graduating? [Information and Computer Technology Skills]']?.trim() || ''}`,
-                    'SKILLS USAGE': `${row['How often do you use the following skills in your current job? [Communication Skills]']?.trim() || ''} ${row['How often do you use the following skills in your current job? [Information and Computer Technology Skills]']?.trim() || ''}`
+                    'SKILLS PROFICIENCY': {
+                        'Communication Skills': row['How would you rate your proficiency in the following skills upon graduating? [Communication Skills]']?.trim() || '',
+                        'Information and Computer Technology Skills': row['How would you rate your proficiency in the following skills upon graduating? [Information and Computer Technology Skills]']?.trim() || ''
+                    },
+                    'SKILLS USAGE': {
+                        'Communication Skills': row['How often do you use the following skills in your current job? [Communication Skills]']?.trim() || '',
+                        'Information and Computer Technology Skills': row['How often do you use the following skills in your current job? [Information and Computer Technology Skills]']?.trim() || ''
+                    }
                 });
             });
 
@@ -1025,27 +1053,21 @@ function showAlumniDetailsModal(alumni) {
     Object.keys(alumni).forEach(key => {
         if (key !== 'NAME') {
             if (key === 'SKILLS PROFICIENCY') {
-                const value = alumni[key] || '';
-                const parts = value.trim().split(/\s+/);
-                const commRating = parts.length >= 2 ? `${parts[0]} ${parts[1]}` : '—';
-                const ictRating = parts.length >= 4 ? `${parts[2]} ${parts[3]}` : '—';
+                const skills = alumni[key] || {};
                 html += `<div class="detail-item">
                     <strong>${key}:</strong>
                     <ul style="list-style: none; padding: 0; margin: 5px 0;">
-                        <li style="margin: 2px 0;">• Communication Skills: ${commRating}</li>
-                        <li style="margin: 2px 0;">• Information and Computer Technology Skills: ${ictRating}</li>
+                        <li style="margin: 2px 0;">• Communication Skills: ${skills['Communication Skills'] || '—'}</li>
+                        <li style="margin: 2px 0;">• Information and Computer Technology Skills: ${skills['Information and Computer Technology Skills'] || '—'}</li>
                     </ul>
                 </div>`;
             } else if (key === 'SKILLS USAGE') {
-                const value = alumni[key] || '';
-                const parts = value.trim().split(/\s+/);
-                const commUsage = parts.length >= 2 ? `${parts[0]} ${parts[1]}` : '—';
-                const ictUsage = parts.length >= 4 ? `${parts[2]} ${parts[3]}` : '—';
+                const skills = alumni[key] || {};
                 html += `<div class="detail-item">
                     <strong>${key}:</strong>
                     <ul style="list-style: none; padding: 0; margin: 5px 0;">
-                        <li style="margin: 2px 0;">• Communication Skills: ${commUsage}</li>
-                        <li style="margin: 2px 0;">• Information and Computer Technology Skills: ${ictUsage}</li>
+                        <li style="margin: 2px 0;">• Communication Skills: ${skills['Communication Skills'] || '—'}</li>
+                        <li style="margin: 2px 0;">• Information and Computer Technology Skills: ${skills['Information and Computer Technology Skills'] || '—'}</li>
                     </ul>
                 </div>`;
             } else {
