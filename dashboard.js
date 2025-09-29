@@ -1024,13 +1024,39 @@ function showAlumniDetailsModal(alumni) {
     html += '<div class="alumni-details-grid">';
     Object.keys(alumni).forEach(key => {
         if (key !== 'NAME') {
-            let title = '';
             if (key === 'SKILLS PROFICIENCY') {
-                title = proficiencyQuestions.join('\n');
+                const value = alumni[key] || '';
+                const parts = value.trim().split(/\s+/);
+                const commRating = parts.length >= 2 ? `${parts[0]} ${parts[1]}` : '—';
+                const ictRating = parts.length >= 4 ? `${parts[2]} ${parts[3]}` : '—';
+                html += `<div class="detail-item">
+                    <strong>${key}:</strong>
+                    <ul style="list-style: none; padding: 0; margin: 5px 0;">
+                        <li style="margin: 2px 0;">• Communication Skills: ${commRating}</li>
+                        <li style="margin: 2px 0;">• Information and Computer Technology Skills: ${ictRating}</li>
+                    </ul>
+                </div>`;
             } else if (key === 'SKILLS USAGE') {
-                title = usageQuestions.join('\n');
+                const value = alumni[key] || '';
+                const parts = value.trim().split(/\s+/);
+                const commUsage = parts.length >= 2 ? `${parts[0]} ${parts[1]}` : '—';
+                const ictUsage = parts.length >= 4 ? `${parts[2]} ${parts[3]}` : '—';
+                html += `<div class="detail-item">
+                    <strong>${key}:</strong>
+                    <ul style="list-style: none; padding: 0; margin: 5px 0;">
+                        <li style="margin: 2px 0;">• Communication Skills: ${commUsage}</li>
+                        <li style="margin: 2px 0;">• Information and Computer Technology Skills: ${ictUsage}</li>
+                    </ul>
+                </div>`;
+            } else {
+                let title = '';
+                if (key === 'SKILLS PROFICIENCY') {
+                    title = proficiencyQuestions.join('\n');
+                } else if (key === 'SKILLS USAGE') {
+                    title = usageQuestions.join('\n');
+                }
+                html += `<div class="detail-item" ${title ? `title="${title}"` : ''}><strong>${key}:</strong> ${alumni[key] || '—'}</div>`;
             }
-            html += `<div class="detail-item" ${title ? `title="${title}"` : ''}><strong>${key}:</strong> ${alumni[key] || '—'}</div>`;
         }
     });
     html += '</div>';
