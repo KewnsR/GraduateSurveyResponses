@@ -1177,7 +1177,7 @@ function checkPassword() {
 // Union/Staff login functionality
 function checkUnionPassword() {
     const password = document.getElementById('passwordInput').value;
-    const correctPassword = 'union2024'; // Union/Staff password
+    const correctPassword = 'alumni2024'; // Union/Staff password
     const errorMessage = document.getElementById('errorMessage');
     
     if (password === correctPassword) {
