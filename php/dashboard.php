@@ -6,11 +6,29 @@
     <title>Alumni Tracer Study Dashboard</title>
     <link rel="stylesheet" href="../dashboard.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    <script src="../dashboard.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <script src="../dashboard.js"></script>
 </head>
 <body>
-    <div class="dashboard-container">
+    <!-- Login Modal -->
+    <div id="loginModal" class="login-modal">
+        <div class="login-modal-content">
+            <h2>Access Dashboard</h2>
+            <p>Enter the password to view the alumni data.</p>
+            <div class="input-wrapper">
+                <label class="input-label">Password</label>
+                <div class="password-input-wrapper">
+                    <input type="password" id="passwordInput" placeholder="Enter your password">
+                    <button type="button" class="password-toggle" onclick="togglePassword()"></button>
+                </div>
+            </div>
+            <button onclick="checkUnionPassword()" class="btn-union">Login</button>
+            <p id="errorMessage">Incorrect password. Please try again.</p>
+        </div>
+    </div>
+    
+
+    <div class="dashboard-container" id="dashboardContainer" style="display: none;">
         <!-- Scroll to Top Button -->
         <button id="scrollToTopBtn" style="display:none;position:fixed;bottom:32px;right:32px;z-index:9999;background:#667eea;color:#fff;border:none;border-radius:50%;width:48px;height:48px;box-shadow:0 2px 8px rgba(60,60,120,0.18);font-size:2em;cursor:pointer;transition:background 0.2s;">
             &#8679;
