@@ -50,6 +50,10 @@ let chartsInitialized = {
     analytics: false
 };
 
+// Determine data path based on current location
+const dataPath = window.location.pathname.includes('/php/') ? '../data/' : 'data/';
+const csvFileName = 'Employability Status of Bachelor of Secondary Education Major in Mathematics Graduates for the Academic Year 2024 (Responses).csv';
+
 // Initialize dashboard
 document.addEventListener('DOMContentLoaded', async function() {
     await loadCSVDataForCharts();
@@ -258,7 +262,7 @@ function showTab(tabName, event) {
 // Load CSV data for charts
 async function loadCSVDataForCharts() {
     try {
-        globalCSVData = await loadCSVData('data/Employability Status of Bachelor of Secondary Education Major in Mathematics Graduates for the Academic Year 2024 (Responses).csv');
+        globalCSVData = await loadCSVData(dataPath + csvFileName);
         
         // Fix: Trim all keys in each row to avoid issues with extra spaces in CSV headers
         globalCSVData = globalCSVData.map(row => {
@@ -884,7 +888,7 @@ let alumniRawData = [];
 let alumniFilteredData = [];
 
 function loadAlumniData() {
-    return loadCSVData('data/Employability Status of Bachelor of Secondary Education Major in Mathematics Graduates for the Academic Year 2024 (Responses).csv')
+    return loadCSVData(dataPath + csvFileName)
         .then(data => {
             alumniRawData = [];
             let employed = 0, unemployed = 0;
