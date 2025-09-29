@@ -1156,3 +1156,84 @@ function clearAlumniFilters() {
 // Make showTab function global so it can be called from HTML
 window.showTab = showTab;
 window.clearAlumniFilters = clearAlumniFilters;
+
+// Login functionality
+function checkPassword() {
+    const password = document.getElementById('passwordInput').value;
+    const correctPassword = 'alumni2024'; // Change this to your desired password
+    const errorMessage = document.getElementById('errorMessage');
+    
+    if (password === correctPassword) {
+        document.getElementById('loginModal').style.display = 'none';
+        document.getElementById('dashboardContainer').style.display = 'block';
+    } else {
+        errorMessage.style.display = 'block';
+        setTimeout(() => {
+            errorMessage.style.display = 'none';
+        }, 3000);
+    }
+}
+
+// Union/Staff login functionality
+function checkUnionPassword() {
+    const password = document.getElementById('passwordInput').value;
+    const correctPassword = 'union2024'; // Union/Staff password
+    const errorMessage = document.getElementById('errorMessage');
+    
+    if (password === correctPassword) {
+        document.getElementById('loginModal').style.display = 'none';
+        document.getElementById('dashboardContainer').style.display = 'block';
+        // You can add additional union-specific features here
+        console.log('Union/Staff login successful');
+    } else {
+        errorMessage.style.display = 'block';
+        setTimeout(() => {
+            errorMessage.style.display = 'none';
+        }, 3000);
+    }
+}
+
+// Password toggle functionality
+function togglePassword() {
+    const input = document.getElementById('passwordInput');
+    const toggle = document.querySelector('.password-toggle');
+    if (input.type === 'password') {
+        input.type = 'text';
+        toggle.classList.add('hidden');
+    } else {
+        input.type = 'password';
+        toggle.classList.remove('hidden');
+    }
+}
+
+// Allow Enter key to submit password
+document.addEventListener('DOMContentLoaded', function() {
+    const passwordInput = document.getElementById('passwordInput');
+    if (passwordInput) {
+        passwordInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                checkPassword();
+            }
+        });
+    }
+
+    // Show/hide scroll-to-top button
+    const scrollBtn = document.getElementById('scrollToTopBtn');
+    if (scrollBtn) {
+        window.addEventListener('scroll', function() {
+            if (window.scrollY > 200) {
+                scrollBtn.style.display = 'block';
+            } else {
+                scrollBtn.style.display = 'none';
+            }
+        });
+        scrollBtn.addEventListener('click', function() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    }
+});
+
+// Make functions global for HTML onclick
+window.checkPassword = checkPassword;
+window.togglePassword = togglePassword;
+window.checkUnionPassword = checkUnionPassword;
