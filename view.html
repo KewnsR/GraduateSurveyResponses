@@ -3,38 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alumni Tracer Study Dashboard</title>
+    <title>Alumni Tracer Study Dashboard - View Only</title>
     <link rel="stylesheet" href="dashboard.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-    <script src="dashboard.js"></script>
 </head>
 <body>
-    <!-- Login Modal -->
-    <div id="loginModal" class="login-modal">
-        <div class="login-modal-content">
-            <h2>Access Dashboard</h2>
-            <p>Enter the password to view the alumni data.</p>
-            <div class="input-wrapper">
-                <label class="input-label">Password</label>
-                <div class="password-input-wrapper">
-                    <input type="password" id="passwordInput" placeholder="Enter your password">
-                    <button type="button" class="password-toggle" onclick="togglePassword()"></button>
-                </div>
-            </div>
-            <button onclick="checkUnionPassword()" class="btn-union">Login</button>
-            <p id="errorMessage">Incorrect password. Please try again.</p>
-            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e0e0e0;">
-                <p style="font-size: 0.9em; color: #666; margin-bottom: 10px;">Don't have a password?</p>
-                <button onclick="window.location.href='view.html'" style="background: #6c757d; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-size: 1em; width: 100%; transition: background 0.3s;" onmouseover="this.style.background='#5a6268'" onmouseout="this.style.background='#6c757d'">
-                    &#128065; View Dashboard (View Only)
-                </button>
-            </div>
-        </div>
-    </div>
-    
-
-    <div class="dashboard-container" id="dashboardContainer" style="display: none;">
+    <div class="dashboard-container" style="display: block;">
         <!-- Scroll to Top Button -->
         <button id="scrollToTopBtn" style="display:none;position:fixed;bottom:32px;right:32px;z-index:9999;background:#667eea;color:#fff;border:none;border-radius:50%;width:48px;height:48px;box-shadow:0 2px 8px rgba(60,60,120,0.18);font-size:2em;cursor:pointer;transition:background 0.2s;">
             &#8679;
@@ -84,7 +59,7 @@
             <button class="tab-button" onclick="showTab('analytics', event)">Analytics</button>
         </div>
 
-        <!-- Alumni Details Modal: moved outside tabs so it's always available -->
+        <!-- Alumni Details Modal -->
         <div id="alumniDetailsModal" class="alumni-modal" style="display:none;">
             <div class="alumni-modal-content">
                 <span class="alumni-modal-close" onclick="closeAlumniModal()">&times;</span>
@@ -92,88 +67,10 @@
             </div>
         </div>
 
-        <!-- Edit Alumni Modal -->
-        <div id="editAlumniModal" class="alumni-modal" style="display:none;">
-            <div class="alumni-modal-content">
-                <span class="alumni-modal-close" onclick="closeEditModal()">&times;</span>
-                <h2>Edit Alumni Record</h2>
-                <form id="editForm">
-                    <input type="hidden" id="editId" name="id">
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Name:</label>
-                        <input type="text" id="editName" name="name" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                    </div>
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Contact Number:</label>
-                        <input type="text" id="editContact" name="contact_no" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                    </div>
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Email:</label>
-                        <input type="email" id="editEmail" name="email" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                    </div>
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Employment Status:</label>
-                        <select id="editEmployed" name="employed" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                            <option value="Yes">Employed</option>
-                            <option value="No">Unemployed</option>
-                        </select>
-                    </div>
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Position:</label>
-                        <input type="text" id="editPosition" name="position" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                    </div>
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Company:</label>
-                        <input type="text" id="editCompany" name="company" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                    </div>
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Home Address:</label>
-                        <textarea id="editHomeAddress" name="home_address" rows="2" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
-                    </div>
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Facebook Link:</label>
-                        <input type="text" id="editFacebookLink" name="facebook_link" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                    </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-                        <div>
-                            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Gender:</label>
-                            <select id="editSex" name="sex" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                                <option value="Male">Male</option>
-                                <option value="Female">Female</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Age:</label>
-                            <input type="text" id="editAge" name="age" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                        </div>
-                    </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-                        <div>
-                            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Civil Status:</label>
-                            <select id="editCivilStatus" name="civil_status" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                                <option value="Single">Single</option>
-                                <option value="Married">Married</option>
-                                <option value="Single Parent">Single Parent</option>
-                                <option value="Widowed">Widowed</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Year Graduated:</label>
-                            <input type="text" id="editYearGraduated" name="year_graduated" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                        </div>
-                    </div>
-                    <div style="margin-top: 20px;">
-                        <button type="submit" style="background: #667eea; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px;">Save Changes</button>
-                        <button type="button" onclick="closeEditModal()" style="background: #94a3b8; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">Cancel</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
         <!-- Tab Contents -->
         <div id="overview-tab" class="tab-content active">
             <h2>Dashboard Overview</h2>
-            <p>Welcome to the Alumni Tracer Study Dashboard. This system tracks the employment outcomes and career progression of 54 program graduates who responded to the survey.</p>
+            <p>Welcome to the Alumni Tracer Study Dashboard. This system tracks the employment outcomes and career progression of program graduates.</p>
             
             <div style="margin-top: 30px;">
                 <h3>Key Metrics</h3>
@@ -207,9 +104,9 @@
             </div>
             <div class="loading" id="alumniLoading">Loading alumni data...</div>
             <div id="alumniCardsGrid" class="alumni-cards-grid"></div>
+        </div>
 
-    </div>
-    <div id="employment-tab" class="tab-content">
+        <div id="employment-tab" class="tab-content">
             <h2>Employment Analysis</h2>
             <div class="charts-container">
                 <div class="chart-card">
@@ -221,7 +118,6 @@
                     <canvas id="timeToEmploymentChart"></canvas>
                 </div>
             </div>
-            <!-- New Charts Added -->
             <div class="chart-card">
                 <h3 class="chart-title">Demographic Breakdown</h3>
                 <div style="display: flex; flex-wrap: wrap; gap: 20px;">
@@ -265,7 +161,6 @@
                 <canvas id="skillsChart"></canvas>
             </div>
 
-            <!-- New Charts Added -->
             <div class="chart-card">
                 <h3 class="chart-title">Skill Proficiency Distribution</h3>
                 <canvas id="skillsProficiencyChart"></canvas>
@@ -277,6 +172,13 @@
             </div>  
         </div>
     </div>
-    </div>
+
+    <script src="dashboard.js"></script>
+    <script>
+        // Auto-show dashboard without login
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('View-only mode - no login required');
+        });
+    </script>
 </body>
 </html>

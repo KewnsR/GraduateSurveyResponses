@@ -273,12 +273,20 @@ async function loadCSVDataForCharts() {
             return trimmedRow;
         });
 
-        // Filter out any empty/invalid rows
-        globalCSVData = globalCSVData.filter(row => row.name && row.name !== '');
+        // Filter out any empty/invalid rows (but keep rows with at least a name)
+        globalCSVData = globalCSVData.filter(row => {
+            const hasName = row.name && row.name !== '' && row.name.length > 2;
+            return hasName;
+        });
 
         console.log('CSV data loaded:', globalCSVData.length, 'records');
         console.log('Employed count:', globalCSVData.filter(row => row.employed === 'Yes').length);
         console.log('Unemployed count:', globalCSVData.filter(row => row.employed === 'No').length);
+        
+        // Debug: Check if we have all 54 records
+        if (globalCSVData.length !== 54) {
+            console.warn(`Expected 54 records but got ${globalCSVData.length}`);
+        }
     } catch (error) {
         console.error('Error loading CSV data:', error);
         // Use fallback data if CSV fails to load
@@ -1172,7 +1180,7 @@ function renderAlumniCards(data) {
             </div>
             <div class="alumni-actions">
                 <button class="btn view-details-btn" data-idx="${idx}">&#128065; View Full Details</button>
-                <button class="btn edit-btn" data-idx="${idx}">&#9998; Edit</button>
+                ${window.location.pathname.includes('view.html') ? '' : '<button class="btn edit-btn" data-idx="${idx}">&#9998; Edit</button>'}
             </div>
         `;
         grid.appendChild(card);
@@ -1185,15 +1193,17 @@ function renderAlumniCards(data) {
             showAlumniDetailsModal(data[idx]);
         });
     });
-    // Add event listeners for edit buttons
-    const editBtns = grid.querySelectorAll('.edit-btn');
-    editBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-            const idx = parseInt(btn.getAttribute('data-idx'));
-            openEditModal(data[idx]);
+    // Add event listeners for edit buttons (only if not in view-only mode)
+    if (!window.location.pathname.includes('view.html')) {
+        const editBtns = grid.querySelectorAll('.edit-btn');
+        editBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const idx = parseInt(btn.getAttribute('data-idx'));
+                openEditModal(data[idx]);
+            });
         });
-    });
-// ...existing code...
+    }
+}
 
 // Show alumni details modal (global scope)
 function showAlumniDetailsModal(alumni) {
@@ -1306,7 +1316,6 @@ function closeAlumniModal() {
 
 // Make closeAlumniModal global for HTML onclick
 window.closeAlumniModal = closeAlumniModal;
-}
 
 function filterAlumni() {
     const year = document.getElementById('yearFilter')?.value || '';
