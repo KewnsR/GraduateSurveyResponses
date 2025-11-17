@@ -275,7 +275,7 @@ async function loadCSVDataForCharts() {
 
         // Filter out any empty/invalid rows (but keep rows with at least a name)
         globalCSVData = globalCSVData.filter(row => {
-            const hasName = row.name && row.name !== '' && row.name.length > 2;
+            const hasName = row.name && row.name !== '';
             return hasName;
         });
 
