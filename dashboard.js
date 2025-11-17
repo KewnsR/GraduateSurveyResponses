@@ -1180,7 +1180,7 @@ function renderAlumniCards(data) {
             </div>
             <div class="alumni-actions">
                 <button class="btn view-details-btn" data-idx="${idx}">&#128065; View Full Details</button>
-                ${window.location.pathname.includes('view.html') ? '' : '<button class="btn edit-btn" data-idx="${idx}">&#9998; Edit</button>'}
+                ${window.location.pathname.includes('view.html') ? '' : `<button class="btn edit-btn" data-idx="${idx}">&#9998; Edit</button>`}
             </div>
         `;
         grid.appendChild(card);
