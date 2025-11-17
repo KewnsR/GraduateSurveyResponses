@@ -86,6 +86,84 @@
             </div>
         </div>
 
+        <!-- Edit Alumni Modal -->
+        <div id="editAlumniModal" class="alumni-modal" style="display:none;">
+            <div class="alumni-modal-content">
+                <span class="alumni-modal-close" onclick="closeEditModal()">&times;</span>
+                <h2>Edit Alumni Record</h2>
+                <form id="editForm">
+                    <input type="hidden" id="editId" name="id">
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Name:</label>
+                        <input type="text" id="editName" name="name" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Contact Number:</label>
+                        <input type="text" id="editContact" name="contact_no" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Email:</label>
+                        <input type="email" id="editEmail" name="email" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Employment Status:</label>
+                        <select id="editEmployed" name="employed" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                            <option value="Yes">Employed</option>
+                            <option value="No">Unemployed</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Position:</label>
+                        <input type="text" id="editPosition" name="position" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Company:</label>
+                        <input type="text" id="editCompany" name="company" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Home Address:</label>
+                        <textarea id="editHomeAddress" name="home_address" rows="2" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Facebook Link:</label>
+                        <input type="text" id="editFacebookLink" name="facebook_link" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Gender:</label>
+                            <select id="editSex" name="sex" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Age:</label>
+                            <input type="text" id="editAge" name="age" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Civil Status:</label>
+                            <select id="editCivilStatus" name="civil_status" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                                <option value="Single">Single</option>
+                                <option value="Married">Married</option>
+                                <option value="Single Parent">Single Parent</option>
+                                <option value="Widowed">Widowed</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Year Graduated:</label>
+                            <input type="text" id="editYearGraduated" name="year_graduated" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                    </div>
+                    <div style="margin-top: 20px;">
+                        <button type="submit" style="background: #667eea; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px;">Save Changes</button>
+                        <button type="button" onclick="closeEditModal()" style="background: #94a3b8; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <!-- Tab Contents -->
         <div id="overview-tab" class="tab-content active">
             <h2>Dashboard Overview</h2>

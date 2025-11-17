@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Data Loading</title>
+</head>
+<body>
+    <h1>Testing Data Load</h1>
+    <div id="status">Loading...</div>
+    <div id="data"></div>
+    
+    <script>
+        fetch('php/get_data.php')
+            .then(response => {
+                document.getElementById('status').innerHTML = 'Response status: ' + response.status;
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById('status').innerHTML += '<br>Records loaded: ' + data.length;
+                document.getElementById('data').innerHTML = '<pre>' + JSON.stringify(data.slice(0, 2), null, 2) + '</pre>';
+            })
+            .catch(error => {
+                document.getElementById('status').innerHTML = 'Error: ' + error.message;
+                console.error('Error:', error);
+            });
+    </script>
+</body>
+</html>

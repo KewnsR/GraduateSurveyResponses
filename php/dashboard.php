@@ -86,10 +86,29 @@
             </div>
         </div>
 
+        <!-- Edit Alumni Modal -->
+        <div id="editAlumniModal" class="alumni-modal" style="display:none;">
+            <div class="alumni-modal-content">
+                <span class="alumni-modal-close" onclick="closeEditModal()">&times;</span>
+                <h2>Edit Alumni Record</h2>
+                <form id="editForm">
+                    <input type="hidden" id="editId" name="id">
+                    <label>Name: <input type="text" id="editName" name="name"></label>
+                    <label>Contact: <input type="text" id="editContact" name="contact_no"></label>
+                    <label>Email: <input type="email" id="editEmail" name="email"></label>
+                    <label>Employed: <select id="editEmployed" name="employed"><option value="Yes">Yes</option><option value="No">No</option></select></label>
+                    <label>Position: <input type="text" id="editPosition" name="position"></label>
+                    <label>Company: <input type="text" id="editCompany" name="company"></label>
+                    <!-- Add more fields as needed -->
+                    <button type="submit">Save Changes</button>
+                </form>
+            </div>
+        </div>
+
         <!-- Tab Contents -->
         <div id="overview-tab" class="tab-content active">
             <h2>Dashboard Overview</h2>
-            <p>Welcome to the Alumni Tracer Study Dashboard. This system tracks the employment outcomes and career progression of 54 program graduates who responded to the survey.</p>
+            <p>Welcome to the Alumni Tracer Study Dashboard. This system tracks the employment outcomes and career progression of Bachelor of Secondary Education Major in Mathematics graduates from the Academic Year 2024. The dashboard contains data from 54 survey respondents.</p>
             
             <div style="margin-top: 30px;">
                 <h3>Key Metrics</h3>

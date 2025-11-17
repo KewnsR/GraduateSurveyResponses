@@ -50,8 +50,8 @@ let chartsInitialized = {
     analytics: false
 };
 
-// Determine data path based on current location
-const dataPath = window.location.pathname.includes('/php/') ? '../data/' : 'data/';
+// Determine data path - always try PHP endpoint first
+const dataPath = 'php/get_data.php';
 const csvFileName = 'Employability Status of Bachelor of Secondary Education Major in Mathematics Graduates for the Academic Year 2024 (Responses).csv';
 
 // Initialize dashboard
@@ -80,12 +80,12 @@ document.addEventListener('DOMContentLoaded', async function() {
 function loadDashboardData() {
     if (globalCSVData.length > 0) {
         const total = globalCSVData.length;
-        const employed = globalCSVData.filter(row => row['ARE YOU CURRENTLY EMPLOYED?']?.trim() === 'Yes').length;
-        const recent = globalCSVData.filter(row => row['YEAR GRADUATED']?.trim() === '2024').length;
+        const employed = globalCSVData.filter(row => row['employed']?.trim() === 'Yes').length;
+        const recent = globalCSVData.filter(row => row['year_graduated']?.trim() === '2024').length;
         
         // Compute avg months
         const times = globalCSVData.map(row => {
-            const t = row['HOW MANY MONTHS DID YOU WAIT BEFORE OBTAINING YOUR FIRST EMPLOYMENT AFTER GRADUATION?']?.trim();
+            const t = row['months_to_employment']?.trim();
             if (t === 'Less than 3 months') return 1;
             if (t === '3-6 months') return 4.5;
             if (t === '7-12 months') return 9.5;
@@ -119,7 +119,7 @@ function initializeOverviewCharts() {
     // Employment Status Chart
     const employmentCtx = document.getElementById('employmentChart').getContext('2d');
     if (globalCSVData.length > 0) {
-        const employed = globalCSVData.filter(row => row['ARE YOU CURRENTLY EMPLOYED?']?.trim() === 'Yes').length;
+        const employed = globalCSVData.filter(row => row['employed']?.trim() === 'Yes').length;
         const total = globalCSVData.length;
         new Chart(employmentCtx, {
             type: 'doughnut',
@@ -168,7 +168,7 @@ function initializeOverviewCharts() {
     if (globalCSVData.length > 0) {
         const yearCounts = {};
         globalCSVData.forEach(row => {
-            const year = row['YEAR GRADUATED']?.trim();
+            const year = row['year_graduated']?.trim();
             if (year) yearCounts[year] = (yearCounts[year] || 0) + 1;
         });
         new Chart(graduatesCtx, {
@@ -262,7 +262,7 @@ function showTab(tabName, event) {
 // Load CSV data for charts
 async function loadCSVDataForCharts() {
     try {
-        globalCSVData = await loadCSVData(dataPath + csvFileName);
+        globalCSVData = await loadCSVData(dataPath);
         
         // Fix: Trim all keys in each row to avoid issues with extra spaces in CSV headers
         globalCSVData = globalCSVData.map(row => {
@@ -273,7 +273,12 @@ async function loadCSVDataForCharts() {
             return trimmedRow;
         });
 
+        // Filter out any empty/invalid rows
+        globalCSVData = globalCSVData.filter(row => row.name && row.name !== '');
+
         console.log('CSV data loaded:', globalCSVData.length, 'records');
+        console.log('Employed count:', globalCSVData.filter(row => row.employed === 'Yes').length);
+        console.log('Unemployed count:', globalCSVData.filter(row => row.employed === 'No').length);
     } catch (error) {
         console.error('Error loading CSV data:', error);
         // Use fallback data if CSV fails to load
@@ -290,8 +295,8 @@ function initializeEmploymentCharts() {
     try {
         // Industry Chart - compute from data (employed respondents only)
         const industryCounts = {};
-        globalCSVData.filter(row => row['ARE YOU CURRENTLY EMPLOYED?']?.trim() === 'Yes').forEach(row => {
-            const industry = row['WHAT NATURE OF BUSINESS DOES YOUR COMPANY ENGAGE IN?']?.trim();
+        globalCSVData.filter(row => row['employed']?.trim() === 'Yes').forEach(row => {
+            const industry = row['industry']?.trim();
             if (industry) {
                 industryCounts[industry] = (industryCounts[industry] || 0) + 1;
             }
@@ -324,8 +329,8 @@ function initializeEmploymentCharts() {
 
         // Time to Employment Chart - compute from data (employed respondents only)
         const timeCounts = {};
-        globalCSVData.filter(row => row['ARE YOU CURRENTLY EMPLOYED?']?.trim() === 'Yes').forEach(row => {
-            const time = row['HOW MANY MONTHS DID YOU WAIT BEFORE OBTAINING YOUR FIRST EMPLOYMENT AFTER GRADUATION?']?.trim();
+        globalCSVData.filter(row => row['employed']?.trim() === 'Yes').forEach(row => {
+            const time = row['months_to_employment']?.trim();
             if (time) {
                 timeCounts[time] = (timeCounts[time] || 0) + 1;
             }
@@ -389,21 +394,21 @@ function initializeAnalyticsCharts() {
         if (skillsCtx) {
             // Compute average proficiency and usage from CSV data
             const proficiencySkills = [
-                'How would you rate your proficiency in the following skills upon graduating? [Communication Skills]',
-                'How would you rate your proficiency in the following skills upon graduating? [Information and Computer Technology Skills]',
-                'How would you rate your proficiency in the following skills upon graduating? [Problem-Solving and Critical Thinking Skills]',
-                'How would you rate your proficiency in the following skills upon graduating? [Teaching and Lesson Planning Skills]',
-                'How would you rate your proficiency in the following skills upon graduating? [Research and Ethical Skills]',
-                'How would you rate your proficiency in the following skills upon graduating? [Time Management and Leadership Skills]'
+                'comm_prof',
+                'ict_prof',
+                'prob_solve_prof',
+                'teaching_prof',
+                'research_prof',
+                'leadership_prof'
             ];
             
             const usageSkills = [
-                'How often do you use the following skills in your current job? [Communication Skills]',
-                'How often do you use the following skills in your current job? [Information and Computer Technology Skills]',
-                'How often do you use the following skills in your current job? [Problem-Solving and Critical Thinking Skills]',
-                'How often do you use the following skills in your current job? [Teaching and Lesson Planning Skills]',
-                'How often do you use the following skills in your current job? [Research and Ethical Skills]',
-                'How often do you use the following skills in your current job? [Time Management and Leadership Skills]'
+                'comm_usage',
+                'ict_usage',
+                'prob_solve_usage',
+                'teaching_usage',
+                'research_usage',
+                'leadership_usage'
             ];
             
             const proficiencyAverages = proficiencySkills.map(skill => {
@@ -419,7 +424,7 @@ function initializeAnalyticsCharts() {
             });
             
             const usageAverages = usageSkills.map(skill => {
-                const values = globalCSVData.filter(row => row['ARE YOU CURRENTLY EMPLOYED?']?.trim() === 'Yes').map(row => {
+                const values = globalCSVData.filter(row => row['employed']?.trim() === 'Yes').map(row => {
                     const val = row[skill]?.trim();
                     if (val === 'Often (4)') return 4;
                     if (val === 'Sometimes (3)') return 3;
@@ -473,34 +478,130 @@ function initializeAnalyticsCharts() {
     }
 }
 
+// Utility: Map CSV columns to database field names
+function mapCSVColumnsToDBFields(csvRow) {
+    const columnMap = {
+        'LAST NAME, FIRST NAME, MIDDLE INITIAL (Ex. DELA CRUZ, JUAN A.)': 'name',
+        'CONTACT NO.': 'contact_no',
+        'FACEBOOK LINK': 'facebook_link',
+        'EMAIL ADDRESS': 'email',
+        'HOME ADDRESS': 'home_address',
+        'SEX': 'sex',
+        'AGE': 'age',
+        'CIVIL STATUS': 'civil_status',
+        'YEAR GRADUATED': 'year_graduated',
+        'ARE YOU CURRENTLY EMPLOYED?': 'employed',
+        'CURRENT JOB POSITION/DESIGNATION': 'position',
+        'NAME OF COMPANY/AGENCY/ORGANIZATION': 'company',
+        'TYPE OF ORGANIZATION': 'org_type',
+        'ELIGIBILITY': 'eligibility',
+        'AWARDS RECEIVED': 'awards',
+        'SOCIO-ECONOMIC STATUS (Before Employment)': 'socio_before',
+        'SOCIO-ECONOMIC STATUS (After Employment)': 'socio_after',
+        'HOW MANY MONTHS DID YOU WAIT BEFORE OBTAINING YOUR FIRST EMPLOYMENT AFTER GRADUATION?  ': 'months_to_employment',
+        'WHAT NATURE OF BUSINESS DOES YOUR COMPANY ENGAGE IN?': 'industry',
+        'PLEASE STATE YOUR REASON WHY YOU ARE NOT EMPLOYED (Check all that apply)': 'unemployment_reason',
+        'WHAT IS THE TOTAL NUMBER OF FAMILY MEMBERS IN YOUR HOUSEHOLD?   ': 'family_members',
+        'FAMILY POSITION ? BIRTH ORDER  ': 'birth_order',
+        'WHAT TYPE OF DWELLING DO YOU CURRENTLY RESIDE IN?  ': 'dwelling_type',
+        'HOW WOULD YOU DESCRIBE YOUR FAMILY CLUSTER OR TYPE?  ': 'family_type',
+        // Skills proficiency
+        'How would you rate your proficiency in the following skills upon graduating? [Communication Skills]': 'comm_prof',
+        'How would you rate your proficiency in the following skills upon graduating? [Human Relations Skills]': 'human_rel_prof',
+        'How would you rate your proficiency in the following skills upon graduating? [Information and Computer Technology Skills]': 'ict_prof',
+        'How would you rate your proficiency in the following skills upon graduating? [Audio-Visual Skills]': 'audio_vis_prof',
+        'How would you rate your proficiency in the following skills upon graduating? [Problem-Solving and Critical Thinking Skills]': 'prob_solve_prof',
+        'How would you rate your proficiency in the following skills upon graduating? [Comprehension and Analytical Skills]': 'comp_anal_prof',
+        'How would you rate your proficiency in the following skills upon graduating? [Teaching and Lesson Planning Skills]': 'teaching_prof',
+        'How would you rate your proficiency in the following skills upon graduating? [Time Management and Leadership Skills]': 'leadership_prof',
+        'How would you rate your proficiency in the following skills upon graduating? [Research and Ethical Skills]': 'research_prof',
+        'How would you rate your proficiency in the following skills upon graduating? [Test Construction and Assessment Skills]': 'test_const_prof',
+        'How would you rate your proficiency in the following skills upon graduating? [Creativity, Innovation, and Adaptability]': 'creativity_prof',
+        // Skills usage
+        'How often do you use the following skills in your current job? [Communication Skills]': 'comm_usage',
+        'How often do you use the following skills in your current job? [Human Relations Skills]': 'human_rel_usage',
+        'How often do you use the following skills in your current job? [Information and Computer Technology Skills]': 'ict_usage',
+        'How often do you use the following skills in your current job? [Audio-Visual Skills]': 'audio_vis_usage',
+        'How often do you use the following skills in your current job? [Problem-Solving and Critical Thinking Skills]': 'prob_solve_usage',
+        'How often do you use the following skills in your current job? [Comprehension and Analytical Skills]': 'comp_anal_usage',
+        'How often do you use the following skills in your current job? [Teaching and Lesson Planning Skills]': 'teaching_usage',
+        'How often do you use the following skills in your current job? [Time Management and Leadership Skills]': 'leadership_usage',
+        'How often do you use the following skills in your current job? [Research and Ethical Skills]': 'research_usage',
+        'How often do you use the following skills in your current job? [Test Construction and Assessment Skills]': 'test_const_usage',
+        'How often do you use the following skills in your current job? [Creativity, Innovation, and Adaptability]': 'creativity_usage'
+    };
+    
+    const mappedRow = {};
+    
+    // First, copy all existing short field names
+    for (let key in csvRow) {
+        if (csvRow.hasOwnProperty(key)) {
+            mappedRow[key] = csvRow[key];
+        }
+    }
+    
+    // Then, apply mappings from long column names to short field names
+    for (let longName in columnMap) {
+        if (csvRow.hasOwnProperty(longName)) {
+            mappedRow[columnMap[longName]] = csvRow[longName];
+        }
+    }
+    
+    return mappedRow;
+}
+
 // Utility: Load CSV and return Promise of data array
 function loadCSVData(url) {
     return new Promise((resolve, reject) => {
-        if (typeof Papa !== 'undefined') {
-            Papa.parse(url, {
-                header: true,
-                download: true,
-                skipEmptyLines: false, // Changed to false to include all rows
-                complete: results => resolve(results.data),
-                error: err => reject(err)
-            });
-        } else {
-            // Fallback if Papa Parse is not available
-            fetch(url)
-                .then(response => response.text())
-                .then(csvText => {
-                    const lines = csvText.split('\n');
-                    const headers = lines[0].split(',').map(h => h.replace(/(^"|"$)/g, '').trim());
-                    const data = lines.slice(1).map(line => {
-                        const values = line.split(',');
-                        const obj = {};
-                        headers.forEach((h, i) => obj[h] = values[i] ? values[i].replace(/(^"|"$)/g, '').trim() : '');
-                        return obj;
+        // Try PHP endpoint first
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('PHP endpoint not available');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Loaded data from database:', data.length, 'records');
+                resolve(data);
+            })
+            .catch(phpError => {
+                console.warn('Database load failed, trying CSV fallback:', phpError);
+                // Fallback to CSV
+                const csvUrl = 'data/' + csvFileName;
+                if (typeof Papa !== 'undefined') {
+                    Papa.parse(csvUrl, {
+                        header: true,
+                        download: true,
+                        skipEmptyLines: true,
+                        complete: results => {
+                            console.log('Loaded data from CSV:', results.data.length, 'records');
+                            // Map CSV columns to DB field names
+                            const mappedData = results.data.map(row => mapCSVColumnsToDBFields(row));
+                            resolve(mappedData);
+                        },
+                        error: err => reject(err)
                     });
-                    resolve(data);
-                })
-                .catch(err => reject(err));
-        }
+                } else {
+                    fetch(csvUrl)
+                        .then(response => response.text())
+                        .then(csvText => {
+                            const lines = csvText.split('\n');
+                            const headers = lines[0].split(',').map(h => h.replace(/(^"|"$)/g, '').trim());
+                            const data = lines.slice(1).map(line => {
+                                const values = line.split(',');
+                                const obj = {};
+                                headers.forEach((h, i) => obj[h] = values[i] ? values[i].replace(/(^"|"$)/g, '').trim() : '');
+                                return obj;
+                            });
+                            console.log('Loaded data from CSV (manual parse):', data.length, 'records');
+                            // Map CSV columns to DB field names
+                            const mappedData = data.map(row => mapCSVColumnsToDBFields(row));
+                            resolve(mappedData);
+                        })
+                        .catch(err => reject(err));
+                }
+            });
     });
 }
 
@@ -511,7 +612,7 @@ function renderAgeGroupChart(data) {
     
     const counts = {};
     data.forEach(row => {
-        let age = row['AGE'];
+        let age = row['age'];
         if (age === undefined || age === null) age = 'Unknown';
         if (typeof age === 'string') age = age.trim();
         if (!age) age = 'Unknown';
@@ -542,7 +643,7 @@ function renderGenderChart(data) {
     
     const counts = {};
     data.forEach(row => {
-        let gender = row['SEX'];
+        let gender = row['sex'];
         if (gender === undefined || gender === null) gender = 'Unknown';
         if (typeof gender === 'string') gender = gender.trim();
         if (!gender) gender = 'Unknown';
@@ -573,7 +674,7 @@ function renderCivilStatusChart(data) {
     
     const counts = {};
     data.forEach(row => {
-        let status = row['CIVIL STATUS'];
+        let status = row['civil_status'];
         if (status === undefined || status === null) status = 'Unknown';
         if (typeof status === 'string') status = status.trim();
         if (!status) status = 'Unknown';
@@ -608,16 +709,16 @@ function renderSocioEconomicChart(data) {
     
     const before = {}, after = {};
     data.forEach(row => {
-        let bef = row['SOCIO-ECONOMIC STATUS (Before Employment)'];
+        let bef = row['socio_before'];
         if (bef === undefined || bef === null) bef = 'Unknown';
         if (typeof bef === 'string') bef = bef.trim();
         if (!bef) bef = 'Unknown';
         before[bef] = (before[bef] || 0) + 1;
         
         // Only count "after" for employed respondents
-        const employed = row['ARE YOU CURRENTLY EMPLOYED?']?.trim();
+        const employed = row['employed']?.trim();
         if (employed === 'Yes') {
-            let aft = row['SOCIO-ECONOMIC STATUS (After Employment)'];
+            let aft = row['socio_after'];
             if (aft === undefined || aft === null) aft = 'Unknown';
             if (typeof aft === 'string') aft = aft.trim();
             if (!aft) aft = 'Unknown';
@@ -662,7 +763,7 @@ function renderLicensureChart(data) {
     
     let passed = 0, notPassed = 0;
     data.forEach(row => {
-        let lic = (row['ELIGIBILITY'] || '').trim().toLowerCase();
+        let lic = (row['eligibility'] || '').trim().toLowerCase();
         if (lic) { // Only count rows that have eligibility data
             if (lic.includes('passer') || lic.includes('yes')) {
                 passed++;
@@ -696,9 +797,9 @@ function renderUnemploymentReasonsChart(data) {
     
     const counts = {};
     data.forEach(row => {
-        const employed = row['ARE YOU CURRENTLY EMPLOYED?']?.trim();
+        const employed = row['employed']?.trim();
         if (employed === 'No') {
-            let reasons = row['PLEASE STATE YOUR REASON WHY YOU ARE NOT EMPLOYED (Check all that apply)'];
+            let reasons = row['unemployment_reason'];
             if (typeof reasons === 'string' && reasons.trim()) {
                 reasons.split(',').forEach(r => {
                     const reason = r.trim();
@@ -709,7 +810,7 @@ function renderUnemploymentReasonsChart(data) {
     });
     
     if (Object.keys(counts).length === 0) {
-        counts['No specific reasons provided'] = data.filter(row => row['ARE YOU CURRENTLY EMPLOYED?']?.trim() === 'No').length;
+        counts['No specific reasons provided'] = data.filter(row => row['employed']?.trim() === 'No').length;
     }
     
     new Chart(ctx.getContext('2d'), {
@@ -740,7 +841,7 @@ function renderAwardsChart(data) {
     
     const counts = {};
     data.forEach(row => {
-        let award = row['AWARDS RECEIVED']?.trim();
+        let award = row['awards']?.trim();
         if (award && award.toLowerCase() !== 'none') {
             counts[award] = (counts[award] || 0) + 1;
         } else {
@@ -775,17 +876,30 @@ function renderSkillProficiencyChart(data) {
     if (!ctx) return;
     
     const skills = [
-        'How would you rate your proficiency in the following skills upon graduating? [Communication Skills]',
-        'How would you rate your proficiency in the following skills upon graduating? [Human Relations Skills]',
-        'How would you rate your proficiency in the following skills upon graduating? [Information and Computer Technology Skills]',
-        'How would you rate your proficiency in the following skills upon graduating? [Audio-Visual Skills]',
-        'How would you rate your proficiency in the following skills upon graduating? [Problem-Solving and Critical Thinking Skills]',
-        'How would you rate your proficiency in the following skills upon graduating? [Comprehension and Analytical Skills]',
-        'How would you rate your proficiency in the following skills upon graduating? [Teaching and Lesson Planning Skills]',
-        'How would you rate your proficiency in the following skills upon graduating? [Time Management and Leadership Skills]',
-        'How would you rate your proficiency in the following skills upon graduating? [Research and Ethical Skills]',
-        'How would you rate your proficiency in the following skills upon graduating? [Test Construction and Assessment Skills]',
-        'How would you rate your proficiency in the following skills upon graduating? [Creativity, Innovation, and Adaptability]'
+        'comm_prof',
+        'human_rel_prof',
+        'ict_prof',
+        'audio_vis_prof',
+        'prob_solve_prof',
+        'comp_anal_prof',
+        'teaching_prof',
+        'leadership_prof',
+        'research_prof',
+        'test_const_prof',
+        'creativity_prof'
+    ];
+    const skillLabels = [
+        'Communication Skills',
+        'Human Relations Skills',
+        'Information and Computer Technology Skills',
+        'Audio-Visual Skills',
+        'Problem-Solving and Critical Thinking Skills',
+        'Comprehension and Analytical Skills',
+        'Teaching and Lesson Planning Skills',
+        'Time Management and Leadership Skills',
+        'Research and Ethical Skills',
+        'Test Construction and Assessment Skills',
+        'Creativity, Innovation, and Adaptability'
     ];
     const levels = ['Very Good (4)', 'Good (3)', 'Fair (2)', 'Poor (1)'];
     
@@ -798,7 +912,7 @@ function renderSkillProficiencyChart(data) {
         });
         
         return {
-            label: skill.match(/\[(.*?)\]/)?.[1] || `Skill ${idx + 1}`,
+            label: skillLabels[idx],
             data: levels.map(lvl => counts[lvl]),
             backgroundColor: [
                 '#60a5fa', '#fbbf24', '#34d399', '#f87171', '#a78bfa',
@@ -830,22 +944,35 @@ function renderSkillsUsageChart(data) {
     if (!ctx) return;
     
     const skills = [
-        'How often do you use the following skills in your current job? [Communication Skills]',
-        'How often do you use the following skills in your current job? [Human Relations Skills]',
-        'How often do you use the following skills in your current job? [Information and Computer Technology Skills]',
-        'How often do you use the following skills in your current job? [Audio-Visual Skills]',
-        'How often do you use the following skills in your current job? [Problem-Solving and Critical Thinking Skills]',
-        'How often do you use the following skills in your current job? [Comprehension and Analytical Skills]',
-        'How often do you use the following skills in your current job? [Teaching and Lesson Planning Skills]',
-        'How often do you use the following skills in your current job? [Time Management and Leadership Skills]',
-        'How often do you use the following skills in your current job? [Research and Ethical Skills]',
-        'How often do you use the following skills in your current job? [Test Construction and Assessment Skills]',
-        'How often do you use the following skills in your current job? [Creativity, Innovation, and Adaptability]'
+        'comm_usage',
+        'human_rel_usage',
+        'ict_usage',
+        'audio_vis_usage',
+        'prob_solve_usage',
+        'comp_anal_usage',
+        'teaching_usage',
+        'leadership_usage',
+        'research_usage',
+        'test_const_usage',
+        'creativity_usage'
+    ];
+    const skillLabels = [
+        'Communication Skills',
+        'Human Relations Skills',
+        'Information and Computer Technology Skills',
+        'Audio-Visual Skills',
+        'Problem-Solving and Critical Thinking Skills',
+        'Comprehension and Analytical Skills',
+        'Teaching and Lesson Planning Skills',
+        'Time Management and Leadership Skills',
+        'Research and Ethical Skills',
+        'Test Construction and Assessment Skills',
+        'Creativity, Innovation, and Adaptability'
     ];
     const levels = ['Often (4)', 'Sometimes (3)', 'Rarely (2)', 'Never (1)'];
     
     // Filter for employed respondents only
-    const employedData = data.filter(row => row['ARE YOU CURRENTLY EMPLOYED?']?.trim() === 'Yes');
+    const employedData = data.filter(row => row['employed']?.trim() === 'Yes');
     
     const datasets = skills.map((skill, idx) => {
         const counts = {};
@@ -856,7 +983,7 @@ function renderSkillsUsageChart(data) {
         });
         
         return {
-            label: skill.match(/\[(.*?)\]/)?.[1] || `Skill ${idx + 1}`,
+            label: skillLabels[idx],
             data: levels.map(lvl => counts[lvl]),
             backgroundColor: [
                 '#818cf8', '#f472b6', '#facc15', '#fb7185', '#4ade80',
@@ -888,7 +1015,7 @@ let alumniRawData = [];
 let alumniFilteredData = [];
 
 function loadAlumniData() {
-    return loadCSVData(dataPath + csvFileName)
+    return loadCSVData(dataPath)
         .then(data => {
             alumniRawData = [];
             let employed = 0, unemployed = 0;
@@ -898,43 +1025,61 @@ function loadAlumniData() {
             let orgTypeSet = new Set();
             
             data.forEach(row => {
-                const employedStatus = row['ARE YOU CURRENTLY EMPLOYED?']?.trim();
+                // Skip empty rows
+                const name = row['name'] || row['LAST NAME, FIRST NAME, MIDDLE INITIAL (Ex. DELA CRUZ, JUAN A.)']?.trim();
+                if (!name || name === '') return;
+                
+                const employedStatus = row['employed'] || row['ARE YOU CURRENTLY EMPLOYED?']?.trim();
                 if (employedStatus === 'Yes') employed++;
                 else if (employedStatus === 'No') unemployed++;
-                const year = row['YEAR GRADUATED']?.trim();
+                const year = row['year_graduated'] || row['YEAR GRADUATED']?.trim();
                 yearsSet.add(year);
-                gendersSet.add(row['SEX']?.trim());
-                civilSet.add(row['CIVIL STATUS']?.trim());
-                orgTypeSet.add(row['TYPE OF ORGANIZATION']?.trim());
-                alumniRawData.push({
-                    'NAME': (row['LAST NAME, FIRST NAME, MIDDLE INITIAL (Ex. DELA CRUZ, JUAN A.)']?.trim() || ''),
-                    'CONTACT NO.': row['CONTACT NO.']?.trim() || '',
-                    'FACEBOOK LINK': row['FACEBOOK LINK']?.trim() || '',
-                    'EMAIL ADDRESS': row['EMAIL ADDRESS']?.trim() || '',
-                    'HOME ADDRESS': row['HOME ADDRESS']?.trim() || '',
-                    'SEX': row['SEX']?.trim() || '',
-                    'AGE': row['AGE']?.trim() || '',
-                    'CIVIL STATUS': row['CIVIL STATUS']?.trim() || '',
-                    'YEAR GRADUATED': year || '',
-                    'ARE YOU CURRENTLY EMPLOYED?': employedStatus || '',
-                    'POSITION': (row['CURRENT JOB POSITION/DESIGNATION']?.trim() || ''),
-                    'COMPANY': (row['NAME OF COMPANY/AGENCY/ORGANIZATION']?.trim() || ''),
-                    'ORG TYPE': (row['TYPE OF ORGANIZATION']?.trim() || ''),
-                    // Additional info from CSV for full details
-                    'LET PASSER / ELIGIBILITY': (row['ELIGIBILITY']?.trim() || ''),
-                    'AWARDS RECEIVED': row['AWARDS RECEIVED']?.trim() || '',
-                    'SOCIO-ECONOMIC STATUS (Before Employment)': row['SOCIO-ECONOMIC STATUS (Before Employment)']?.trim() || '',
-                    'SOCIO-ECONOMIC STATUS (After Employment)': row['SOCIO-ECONOMIC STATUS (After Employment)']?.trim() || '',
-                    'REASON FOR UNEMPLOYMENT': row['PLEASE STATE YOUR REASON WHY YOU ARE NOT EMPLOYED (Check all that apply)']?.trim() || '',
-                    'SKILLS PROFICIENCY': {
-                        'Communication Skills': row['How would you rate your proficiency in the following skills upon graduating? [Communication Skills]']?.trim() || '',
-                        'Information and Computer Technology Skills': row['How would you rate your proficiency in the following skills upon graduating? [Information and Computer Technology Skills]']?.trim() || ''
-                    },
-                    'SKILLS USAGE': {
-                        'Communication Skills': row['How often do you use the following skills in your current job? [Communication Skills]']?.trim() || '',
-                        'Information and Computer Technology Skills': row['How often do you use the following skills in your current job? [Information and Computer Technology Skills]']?.trim() || ''
-                    }
-                });
+                gendersSet.add(row['sex'] || row['SEX']?.trim());
+                civilSet.add(row['civil_status'] || row['CIVIL STATUS']?.trim());
+                orgTypeSet.add(row['org_type'] || row['TYPE OF ORGANIZATION']?.trim());
+                
+                // Build alumni object with ALL fields including skills
+                const alumniObj = {
+                    'id': row['id'],
+                    'name': name,
+                    'contact_no': row['contact_no'] || row['CONTACT NO.']?.trim(),
+                    'facebook_link': row['facebook_link'] || row['FACEBOOK LINK']?.trim(),
+                    'email': row['email'] || row['EMAIL ADDRESS']?.trim(),
+                    'home_address': row['home_address'] || row['HOME ADDRESS']?.trim(),
+                    'sex': row['sex'] || row['SEX']?.trim(),
+                    'age': row['age'] || row['AGE']?.trim(),
+                    'civil_status': row['civil_status'] || row['CIVIL STATUS']?.trim(),
+                    'year_graduated': year,
+                    'employed': employedStatus,
+                    'position': row['position'] || row['CURRENT JOB POSITION/DESIGNATION']?.trim(),
+                    'company': row['company'] || row['NAME OF COMPANY/AGENCY/ORGANIZATION']?.trim(),
+                    'org_type': row['org_type'] || row['TYPE OF ORGANIZATION']?.trim(),
+                    // Add all skill fields
+                    'comm_prof': row['comm_prof'],
+                    'human_rel_prof': row['human_rel_prof'],
+                    'ict_prof': row['ict_prof'],
+                    'audio_vis_prof': row['audio_vis_prof'],
+                    'prob_solve_prof': row['prob_solve_prof'],
+                    'comp_anal_prof': row['comp_anal_prof'],
+                    'teaching_prof': row['teaching_prof'],
+                    'leadership_prof': row['leadership_prof'],
+                    'research_prof': row['research_prof'],
+                    'test_const_prof': row['test_const_prof'],
+                    'creativity_prof': row['creativity_prof'],
+                    'comm_usage': row['comm_usage'],
+                    'human_rel_usage': row['human_rel_usage'],
+                    'ict_usage': row['ict_usage'],
+                    'audio_vis_usage': row['audio_vis_usage'],
+                    'prob_solve_usage': row['prob_solve_usage'],
+                    'comp_anal_usage': row['comp_anal_usage'],
+                    'teaching_usage': row['teaching_usage'],
+                    'leadership_usage': row['leadership_usage'],
+                    'research_usage': row['research_usage'],
+                    'test_const_usage': row['test_const_usage'],
+                    'creativity_usage': row['creativity_usage']
+                };
+                
+                alumniRawData.push(alumniObj);
             });
 
             // Populate filters
@@ -1010,23 +1155,24 @@ function renderAlumniCards(data) {
         const card = document.createElement('div');
         card.className = 'alumni-card';
         card.innerHTML = `
-            <div class="alumni-header">${a['NAME']}</div>
+            <div class="alumni-header">${a['name'] || a['NAME']}</div>
             <div class="alumni-tags">
-                <span class="alumni-tag ${a['ARE YOU CURRENTLY EMPLOYED?'] === 'Yes' ? 'employed' : 'unemployed'}">${a['ARE YOU CURRENTLY EMPLOYED?'] === 'Yes' ? 'Employed' : 'Unemployed'}</span>
-                <span class="alumni-tag">Class of ${a['YEAR GRADUATED']}</span>
-                <span class="alumni-tag">${a['SEX']}</span>
+                <span class="alumni-tag ${a['employed'] === 'Yes' ? 'employed' : 'unemployed'}">${a['employed'] === 'Yes' ? 'Employed' : 'Unemployed'}</span>
+                <span class="alumni-tag">Class of ${a['year_graduated']}</span>
+                <span class="alumni-tag">${a['sex']}</span>
             </div>
             <div class="alumni-details">
-                <div><span class="icon">&#128188;</span> ${a['POSITION'] || '—'}</div>
-                <div><span class="icon">&#127891;</span> ${a['COMPANY'] || '—'}</div>
-                <div><span class="icon">&#127968;</span> ${a['HOME ADDRESS'] || '—'}</div>
-                <div><span class="icon">&#128222;</span> ${a['CONTACT NO.'] || '—'}
-                    ${a['EMAIL ADDRESS'] ? `<span style='margin-left:10px;'>&#9993; <a href='mailto:${a['EMAIL ADDRESS']}' target='_blank'>Email</a></span>` : ''}
-                    ${a['FACEBOOK LINK'] ? `<span style='margin-left:10px;'>&#128100; <a href='${a['FACEBOOK LINK']}' target='_blank'>Facebook</a></span>` : ''}
+                <div><span class="icon">&#128188;</span> ${a['position'] || '—'}</div>
+                <div><span class="icon">&#127891;</span> ${a['company'] || '—'}</div>
+                <div><span class="icon">&#127968;</span> ${a['home_address'] || '—'}</div>
+                <div><span class="icon">&#128222;</span> ${a['contact_no'] || '—'}
+                    ${a['email'] ? `<span style='margin-left:10px;'>&#9993; <a href='mailto:${a['email']}' target='_blank'>Email</a></span>` : ''}
+                    ${a['facebook_link'] ? `<span style='margin-left:10px;'>&#128100; <a href='${a['facebook_link']}' target='_blank'>Facebook</a></span>` : ''}
                 </div>
             </div>
             <div class="alumni-actions">
                 <button class="btn view-details-btn" data-idx="${idx}">&#128065; View Full Details</button>
+                <button class="btn edit-btn" data-idx="${idx}">&#9998; Edit</button>
             </div>
         `;
         grid.appendChild(card);
@@ -1039,6 +1185,14 @@ function renderAlumniCards(data) {
             showAlumniDetailsModal(data[idx]);
         });
     });
+    // Add event listeners for edit buttons
+    const editBtns = grid.querySelectorAll('.edit-btn');
+    editBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const idx = parseInt(btn.getAttribute('data-idx'));
+            openEditModal(data[idx]);
+        });
+    });
 // ...existing code...
 
 // Show alumni details modal (global scope)
@@ -1047,61 +1201,100 @@ function showAlumniDetailsModal(alumni) {
     const body = document.getElementById('alumniModalBody');
     if (!modal || !body) return;
 
-    // Define full questions for tooltips
-    const proficiencyQuestions = [
-        'How would you rate your proficiency in the following skills upon graduating? [Communication Skills]',
-        'How would you rate your proficiency in the following skills upon graduating? [Information and Computer Technology Skills]'
-    ];
-    const usageQuestions = [
-        'How often do you use the following skills in your current job? [Communication Skills]',
-        'How often do you use the following skills in your current job? [Information and Computer Technology Skills]'
-    ];
+    // Map field names to display labels
+    const fieldLabels = {
+        'name': 'Name',
+        'contact_no': 'Contact Number',
+        'facebook_link': 'Facebook',
+        'email': 'Email',
+        'home_address': 'Home Address',
+        'sex': 'Gender',
+        'age': 'Age',
+        'civil_status': 'Civil Status',
+        'year_graduated': 'Year Graduated',
+        'employed': 'Employment Status',
+        'position': 'Position',
+        'company': 'Company',
+        'company_address': 'Company Address',
+        'employment_status': 'Employment Type',
+        'place_of_work': 'Place of Work',
+        'org_type': 'Organization Type',
+        'industry': 'Industry',
+        'length_of_service': 'Length of Service',
+        'eligibility': 'Eligibility/License',
+        'awards': 'Awards Received',
+        'socio_before': 'Socio-Economic (Before)',
+        'socio_after': 'Socio-Economic (After)',
+        'months_to_employment': 'Months to Employment',
+        'unemployment_reason': 'Unemployment Reason',
+        'family_members': 'Family Members',
+        'birth_order': 'Birth Order',
+        'dwelling_type': 'Dwelling Type',
+        'family_type': 'Family Type'
+    };
 
     // Build details HTML
-    let html = `<h2>${alumni['NAME']}</h2>`;
+    let html = `<h2>${alumni['name'] || 'Alumni Details'}</h2>`;
     html += '<div class="alumni-details-grid">';
-    Object.keys(alumni).forEach(key => {
-        if (key !== 'NAME') {
-            if (key === 'SKILLS PROFICIENCY') {
-                const skills = alumni[key] || {};
-                html += `<div class="detail-item">
-                    <strong>${key}:</strong>
-                    <ul style="list-style: none; padding: 0; margin: 5px 0;">
-                        <li style="margin: 2px 0;">• Communication Skills: ${skills['Communication Skills'] || '—'}</li>
-                        <li style="margin: 2px 0;">• Information and Computer Technology Skills: ${skills['Information and Computer Technology Skills'] || '—'}</li>
-                    </ul>
-                </div>`;
-            } else if (key === 'SKILLS USAGE') {
-                const skills = alumni[key] || {};
-                html += `<div class="detail-item">
-                    <strong>${key}:</strong>
-                    <ul style="list-style: none; padding: 0; margin: 5px 0;">
-                        <li style="margin: 2px 0;">• Communication Skills: ${skills['Communication Skills'] || '—'}</li>
-                        <li style="margin: 2px 0;">• Information and Computer Technology Skills: ${skills['Information and Computer Technology Skills'] || '—'}</li>
-                    </ul>
-                </div>`;
+    
+    // Display main fields in order
+    Object.keys(fieldLabels).forEach(key => {
+        if (alumni[key] && alumni[key] !== '' && alumni[key] !== 'N/A' && alumni[key] !== 'None') {
+            const value = alumni[key];
+            const label = fieldLabels[key];
+            if (key === 'facebook_link' && value) {
+                html += `<div class="detail-item"><strong>${label}:</strong> <a href="${value}" target="_blank">View Profile</a></div>`;
+            } else if (key === 'email' && value) {
+                html += `<div class="detail-item"><strong>${label}:</strong> <a href="mailto:${value}">${value}</a></div>`;
             } else {
-                let title = '';
-                if (key === 'SKILLS PROFICIENCY') {
-                    title = proficiencyQuestions.join('\n');
-                } else if (key === 'SKILLS USAGE') {
-                    title = usageQuestions.join('\n');
-                }
-                html += `<div class="detail-item" ${title ? `title="${title}"` : ''}><strong>${key}:</strong> ${alumni[key] || '—'}</div>`;
+                html += `<div class="detail-item"><strong>${label}:</strong> ${value}</div>`;
             }
         }
     });
+    
+    // Add skill proficiency section
+    html += '<div class="detail-item" style="grid-column: 1 / -1;"><strong>Skill Proficiency Upon Graduation:</strong>';
+    const profSkills = ['comm_prof', 'human_rel_prof', 'ict_prof', 'audio_vis_prof', 'prob_solve_prof', 'comp_anal_prof', 'teaching_prof', 'leadership_prof', 'research_prof', 'test_const_prof', 'creativity_prof'];
+    const profLabels = ['Communication', 'Human Relations', 'ICT', 'Audio-Visual', 'Problem-Solving', 'Comprehension', 'Teaching', 'Leadership', 'Research', 'Test Construction', 'Creativity'];
+    
+    let hasProfData = profSkills.some(skill => alumni[skill] && alumni[skill] !== '');
+    
+    if (hasProfData) {
+        html += '<ul style="list-style: none; padding: 0; margin: 5px 0; columns: 2;">';
+        profSkills.forEach((skill, idx) => {
+            if (alumni[skill] && alumni[skill] !== '') {
+                html += `<li style="margin: 2px 0;">• ${profLabels[idx]}: ${alumni[skill]}</li>`;
+            }
+        });
+        html += '</ul>';
+    } else {
+        html += '<p style="margin: 5px 0; color: #888; font-style: italic;">No skill proficiency data available</p>';
+    }
+    html += '</div>';
+    
+    // Add skill usage section if employed
+    if (alumni['employed'] === 'Yes') {
+        html += '<div class="detail-item" style="grid-column: 1 / -1;"><strong>Skill Usage in Current Job:</strong>';
+        const usageSkills = ['comm_usage', 'human_rel_usage', 'ict_usage', 'audio_vis_usage', 'prob_solve_usage', 'comp_anal_usage', 'teaching_usage', 'leadership_usage', 'research_usage', 'test_const_usage', 'creativity_usage'];
+        
+        let hasUsageData = usageSkills.some(skill => alumni[skill] && alumni[skill] !== '');
+        
+        if (hasUsageData) {
+            html += '<ul style="list-style: none; padding: 0; margin: 5px 0; columns: 2;">';
+            usageSkills.forEach((skill, idx) => {
+                if (alumni[skill] && alumni[skill] !== '') {
+                    html += `<li style="margin: 2px 0;">• ${profLabels[idx]}: ${alumni[skill]}</li>`;
+                }
+            });
+            html += '</ul>';
+        } else {
+            html += '<p style="margin: 5px 0; color: #888; font-style: italic;">No skill usage data available</p>';
+        }
+        html += '</div>';
+    }
+    
     html += '</div>';
     body.innerHTML = html;
-    
-    // Add click event for mobile tooltip support
-    const detailItems = body.querySelectorAll('.detail-item[title]');
-    detailItems.forEach(item => {
-        item.addEventListener('click', () => {
-            alert(item.getAttribute('title'));
-        });
-    });
-    
     modal.style.display = 'block';
 }
 
@@ -1125,16 +1318,16 @@ function filterAlumni() {
     
     alumniFilteredData = alumniRawData.filter(a => {
         let match = true;
-        if (year) match = match && a['YEAR GRADUATED'] === year;
-        if (employment) match = match && a['ARE YOU CURRENTLY EMPLOYED?'] === employment;
-        if (gender) match = match && a['SEX'] === gender;
-        if (civil) match = match && a['CIVIL STATUS'] === civil;
-        if (orgType) match = match && a['ORG TYPE'] === orgType;
+        if (year) match = match && a['year_graduated'] === year;
+        if (employment) match = match && a['employed'] === employment;
+        if (gender) match = match && a['sex'] === gender;
+        if (civil) match = match && a['civil_status'] === civil;
+        if (orgType) match = match && a['org_type'] === orgType;
         if (search) {
             match = match && (
-                a['NAME'].toLowerCase().includes(search) ||
-                (a['COMPANY'] && a['COMPANY'].toLowerCase().includes(search)) ||
-                (a['POSITION'] && a['POSITION'].toLowerCase().includes(search))
+                a['name'].toLowerCase().includes(search) ||
+                (a['company'] && a['company'].toLowerCase().includes(search)) ||
+                (a['position'] && a['position'].toLowerCase().includes(search))
             );
         }
         return match;
@@ -1247,3 +1440,80 @@ document.addEventListener('DOMContentLoaded', function() {
 window.checkPassword = checkPassword;
 window.togglePassword = togglePassword;
 window.checkUnionPassword = checkUnionPassword;
+
+// Edit functionality
+function openEditModal(alumni) {
+    document.getElementById('editId').value = alumni.id;
+    document.getElementById('editName').value = alumni.name || '';
+    document.getElementById('editContact').value = alumni.contact_no || '';
+    document.getElementById('editEmail').value = alumni.email || '';
+    document.getElementById('editEmployed').value = alumni.employed || 'No';
+    document.getElementById('editPosition').value = alumni.position || '';
+    document.getElementById('editCompany').value = alumni.company || '';
+    
+    // Additional fields
+    const homeAddressField = document.getElementById('editHomeAddress');
+    const facebookField = document.getElementById('editFacebookLink');
+    const sexField = document.getElementById('editSex');
+    const ageField = document.getElementById('editAge');
+    const civilStatusField = document.getElementById('editCivilStatus');
+    const yearGradField = document.getElementById('editYearGraduated');
+    
+    if (homeAddressField) homeAddressField.value = alumni.home_address || '';
+    if (facebookField) facebookField.value = alumni.facebook_link || '';
+    if (sexField) sexField.value = alumni.sex || 'Male';
+    if (ageField) ageField.value = alumni.age || '';
+    if (civilStatusField) civilStatusField.value = alumni.civil_status || 'Single';
+    if (yearGradField) yearGradField.value = alumni.year_graduated || '';
+    
+    document.getElementById('editAlumniModal').style.display = 'block';
+}
+
+function closeEditModal() {
+    document.getElementById('editAlumniModal').style.display = 'none';
+}
+
+// Make edit functions global
+window.openEditModal = openEditModal;
+window.closeEditModal = closeEditModal;
+
+// Initialize edit form handler when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initEditForm);
+} else {
+    initEditForm();
+}
+
+function initEditForm() {
+    const editForm = document.getElementById('editForm');
+    if (editForm) {
+        editForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            
+            fetch('php/get_data.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    alert('Changes saved successfully!');
+                    closeEditModal();
+                    // Reload the data to show updates
+                    loadCSVDataForCharts();
+                    loadAlumniData();
+                    loadDashboardData();
+                } else {
+                    alert('Error saving changes: ' + (result.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error saving changes: ' + error.message);
+            });
+        });
+    }
+}
