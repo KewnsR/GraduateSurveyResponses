@@ -1,103 +1,258 @@
-<!--
-   README.md - GraduateSurveyResponses
-   Updated: comprehensive system documentation
-   Purpose: describe architecture, setup, usage, file map, configuration and troubleshooting
--->
+# Alumni Tracker - Analytics Platform
 
-# Alumni Tracer Study — Dashboard
+A modern React-based dashboard for visualizing graduate employment survey data from the Bachelor of Secondary Education Major in Mathematics program (Academic Year 2024). Features interactive charts, role-based access control, and comprehensive employment analytics.
 
-This repository contains a small web dashboard that visualizes survey responses from graduates of the
-Bachelor of Secondary Education — Major in Mathematics (Academic Year 2024). The dashboard supports
-interactive charts, a searchable alumni directory, and client-side analytics driven by a CSV data source.
+## 🚀 Tech Stack
 
-This README explains how the system is organized, how data flows through the app, how to run it locally,
-and notes on configuration and common troubleshooting steps.
+- **Frontend Framework**: React 19.2.3
+- **Build Tool**: Vite 7.3.1
+- **Styling**: Tailwind CSS 3.4.16
+- **Charts**: Chart.js 4.5.1 + react-chartjs-2
+- **Icons**: Lucide React 0.562.0
+- **CSV Parsing**: PapaParse 5.5.3
+- **Deployment**: Vercel
 
-## Quick summary
-- Frontend: `index.html`, `dashboard.css`, `dashboard.js` — UI + charts (Chart.js) + CSV parsing (PapaParse)
-- Data: CSV in `data/` — the canonical dataset used by the dashboard
-- Optional PHP endpoint: `php/get_data.php` — returns the CSV as JSON (useful when you want a simple API)
-- DB helper: `php/db.php` contains a PDO connection string (project currently reads CSV; DB is optional)
+## 📁 Project Structure
 
-Open `index.html` in a browser (or serve the folder via a local web server) to view the dashboard.
+```
+GraduateSurveyResponses/
+├── public/
+│   └── data/                    # CSV data files
+├── src/
+│   ├── components/
+│   │   ├── Header.jsx          # Dashboard header with metrics
+│   │   ├── Sidebar.jsx         # Navigation sidebar
+│   │   ├── Login.jsx           # Authentication screen
+│   │   ├── LogoutModal.jsx     # Logout confirmation
+│   │   └── KPICards.jsx        # Key metrics display
+│   ├── pages/
+│   │   ├── Overview.jsx        # Main dashboard page
+│   │   ├── AlumniRecords.jsx   # Alumni directory with search/filter
+│   │   ├── Employment.jsx      # Employment analytics & charts
+│   │   └── Analytics.jsx       # Advanced analytics
+│   ├── services/
+│   │   └── dataService.js      # CSV data processing & analytics
+│   ├── App.jsx                 # Main app component
+│   ├── main.jsx               # React entry point
+│   └── index.css              # Global styles
+├── index.html                  # HTML entry point
+├── vite.config.js             # Vite configuration
+├── tailwind.config.js         # Tailwind configuration
+└── package.json               # Dependencies
 
-## Contract (what this system expects / produces)
-- Inputs: a CSV file located at `data/Employability Status of Bachelor of Secondary Education Major in Mathematics Graduates for the Academic Year 2024 (Responses).csv` (headers-first row). Alternatively, the `php/get_data.php` endpoint serves the same CSV as JSON.
-- Outputs: interactive charts and a searchable alumni records UI rendered in the browser.
-- Error modes: if the CSV is missing or malformed the app falls back to a small sample dataset embedded in `dashboard.js` and will log errors to the console.
+```
 
-## File map and responsibilities
-- `index.html` — main, static front-end page (login modal + dashboard UI). References `dashboard.css` and `dashboard.js`.
-- `dashboard.css` — styling for the dashboard, modals, cards, and charts.
-- `dashboard.js` — main client-side logic:
-   - Loads CSV using PapaParse (or `fetch` fallback).
-   - Parses and normalizes headers/rows.
-   - Computes summary metrics (total respondents, employment rate, avg months to employment).
-   - Renders Chart.js charts for employment, industries, demographics, skills, etc.
-   - Implements alumni listing, filters, and modal detail views.
-   - Includes a simple client-side password check (hard-coded string) that toggles UI visibility.
-- `data/` — contains the CSV dataset. Default file name:
-   `Employability Status of Bachelor of Secondary Education Major in Mathematics Graduates for the Academic Year 2024 (Responses).csv`
-- `php/get_data.php` — lightweight endpoint that reads the CSV and returns JSON. Useful if you want the browser to fetch JSON rather than parse CSV directly.
-- `php/db.php` — PDO connection to a MySQL database; used only if you later migrate data into a DB. Current codebase uses CSV primarily.
-- `php/dashboard.php` — an alternate PHP-served HTML view; mirrors the static `index.html` but with paths adjusted for the `php/` folder.
+## 🔑 Features
 
-## How data flows (CSV -> UI)
-1. The browser loads `index.html` and `dashboard.js`.
-2. `dashboard.js` determines the correct CSV path and uses PapaParse to download and parse the CSV.
-3. Parsed rows are normalized (header trimming) and stored in `globalCSVData` and `alumniRawData`.
-4. Summary stats and charts are calculated client-side and rendered with Chart.js.
-5. `php/get_data.php` can be used if you prefer the client to fetch `/php/get_data.php` and receive JSON (the endpoint simply converts the CSV to JSON).
+### Authentication & Access Control
+- **Admin Access**: Password-protected (password: `alumni2024`)
+  - Full access to all data including personal information
+  - View contact details, addresses, and employment specifics
+- **Viewer Access**: Guest mode (no password required)
+  - Limited access to aggregated statistics
+  - Personal information hidden for privacy
 
-## Prerequisites & how to run locally (Windows / XAMPP)
-1. Install XAMPP (or any local web server that can serve PHP and static files).
-2. Copy the repository folder to your web server document root (for XAMPP this is typically `C:\xampp\htdocs\`).
-   Example path in this project: `C:\xampp\htdocs\GraduateSurveyResponses`.
-3. Start Apache (and MySQL if you plan to use `php/db.php`) via the XAMPP Control Panel.
-4. For editable version:
-   - Run `php setup_db.php` in the `php/` folder to create the database table and import CSV data.
-   - Open the dashboard in a browser: http://localhost/GraduateSurveyResponses/php/dashboard.php
-5. For static version (read-only): http://localhost/GraduateSurveyResponses/index.html
+### Dashboard Pages
 
-Notes:
-- The editable version uses MySQL to store and edit data.
-- Ensure PDO MySQL driver is enabled in php.ini.## Configuration & small but important settings
-- CSV filename/path: The client JS expects the CSV filename assigned to `csvFileName` in `dashboard.js`. If you rename the CSV, update that variable or place the file with the same name in `data/`.
-- PHP CSV endpoint path: `php/get_data.php` reads `../data/<csvname>` relative to `php/`. If you move files, update the path.
-- Client password: `dashboard.js` contains a hard-coded password `alumni2024` used by the modal to show/hide the dashboard. This is convenient but insecure for production — see Security notes below.
-- DB connection: `php/db.php` uses the following defaults:
-   - host: `localhost`
-   - username: `root`
-   - password: `` (empty)
-   - dbname: `alumni_tracer_study`
+1. **Overview**
+   - Key performance indicators (KPIs)
+   - Employment rate statistics
+   - Graduates by year breakdown
+   - Top employment industries
 
-If you migrate the CSV into a database, update `db.php` with the appropriate credentials and update the server-side code to query the DB instead of reading the CSV.
+2. **Alumni Records**
+   - Searchable directory of 54 alumni
+   - Filter by year, employment status, gender, organization type
+   - Admin: Full contact information displayed
+   - Viewer: Personal details hidden
 
-## Troubleshooting
-- CSV not found / charts empty:
-   - Confirm the CSV is present in the `data/` folder and that the filename exactly matches the string in `dashboard.js` or `php/get_data.php`.
-   - Check browser console for PapaParse or fetch errors.
-- Cross-origin (CORS) errors when fetching `php/get_data.php` from a different origin:
-   - `get_data.php` sets `Access-Control-Allow-Origin: *` by default — this should be fine for local testing. For production tighten the origin policy.
-- Charts look wrong / missing data:
-   - Verify CSV headers are present and match the expected column names used in `dashboard.js` (the code trims header keys before use).
-- Login not working (page still hidden):
-   - The password is checked in `dashboard.js` (client-side). Ensure JavaScript is enabled and the exact password `alumni2024` (or your updated password) is entered.
+3. **Employment Analytics**
+   - Employment by industry (bar chart)
+   - Time to employment distribution (doughnut chart)
+   - Gender, age, and civil status demographics
+   - Socioeconomic mobility analysis
+   - Unemployment reasons breakdown
 
-If you encounter unexpected errors, check the browser console (F12) and the Apache / PHP logs.
+4. **Analytics**
+   - Organization types distribution
+   - Awards and achievements
+   - LET passer statistics
+   - Program success metrics
 
-## Edge cases and limitations
-- Single-file CSV: the system expects the entire dataset to be in a single CSV file with consistent headers. Merging files or changing column names will break parsing unless code is updated.
-- Large datasets: the client parses CSV in the browser — for large datasets (tens of thousands of rows) this will be slow. Consider moving parsing to the server or using pagination/streaming.
-- Security: the app uses client-side password gating and exposes data via JavaScript. Do not expose sensitive personal data in the CSV if the site will be public.
+## 🛠️ Local Development
 
-## Security recommendations
-- Remove hard-coded passwords from `dashboard.js`. Implement server-side authentication if you need protection.
-- Store sensitive data in a database and protect API endpoints with authentication and HTTPS.
-- Sanitize CSV content and avoid storing personally-identifiable information in public repositories.
+### Prerequisites
+- Node.js 16+ and npm
+- Modern web browser
 
-## Editability for Researchers
-The system now supports editing alumni records for future researchers. In the PHP version (`php/dashboard.php`), each alumni card has an "Edit" button that opens a modal form to update details. Changes are saved to the MySQL database.
+### Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/KewnsR/GraduateSurveyResponses.git
+cd GraduateSurveyResponses
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Start development server:
+```bash
+npm run dev
+```
+
+4. Open browser to `http://localhost:5173`
+
+### Build for Production
+
+```bash
+npm run build
+```
+
+The production build will be in the `dist/` folder.
+
+## 📊 Data Source
+
+The dashboard uses CSV data located in `public/data/`:
+- **File**: `Employability Status of Bachelor of Secondary Education Major in Mathematics Graduates for the Academic Year 2024 (Responses).csv`
+- **Records**: 54 alumni responses
+- **Fields**: 100+ columns including employment status, demographics, skills assessment, and feedback
+
+### Data Processing
+The `dataService.js` handles:
+- CSV parsing with PapaParse
+- Data normalization and cleaning
+- Statistical calculations
+- Chart data preparation
+- Dynamic column name matching (handles trailing spaces in headers)
+
+## 🔐 Authentication
+
+### Login Credentials
+- **Admin Password**: `alumni2024`
+- **Viewer Access**: Click "Continue as Viewer" (no password)
+
+### Session Persistence
+- Uses `localStorage` to maintain login state
+- Session persists across page refreshes
+- Clear browser data to reset session
+
+## 🎨 UI/UX Features
+
+- Modern gradient backgrounds
+- Glassmorphism effects with backdrop blur
+- Smooth animations and transitions
+- Responsive design (mobile-friendly)
+- Role badge indicators
+- Interactive hover states
+- Clean typography with Inter font
+
+## 📈 Analytics Methods
+
+### Available Metrics
+- Total alumni count
+- Employment rate percentage
+- Average time to employment
+- Recent graduates (2024)
+- Industry distribution
+- Gender demographics
+- Age group analysis
+- Civil status breakdown
+- Socioeconomic mobility
+- LET passer statistics
+- Organization type distribution
+
+## 🚀 Deployment
+
+### Vercel Deployment
+The project is configured for Vercel deployment:
+
+1. Push changes to GitHub
+2. Vercel automatically builds and deploys
+3. CSV data served from `public/data/` directory
+
+**Important**: The `public/` folder is required for Vite to include static assets in production builds.
+
+## ⚙️ Configuration
+
+### Tailwind CSS
+- Version: 3.4.16 (PostCSS compatible)
+- Custom color scheme with indigo/purple gradients
+- Extended shadow utilities
+
+### Vite
+- React plugin enabled
+- Development server on port 5173
+- Production builds optimized with code splitting
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+**No data showing in charts:**
+- Verify CSV file exists in `public/data/`
+- Check browser console for parsing errors
+- Ensure CSV headers match expected format
+
+**Build errors on Vercel:**
+- Confirm `public/data/` folder structure
+- Check that CSV file is committed to git
+- Review build logs for specific errors
+
+**@apply errors in CSS:**
+- Ensure no `group` utility in @apply directives
+- Verify Tailwind version compatibility
+- Check PostCSS configuration
+
+**Import order warnings:**
+- Place `@import` statements before `@tailwind` directives
+
+## 📝 Development Notes
+
+### Code Quality
+- React hooks for state management
+- Modular component architecture
+- Reusable data service layer
+- Consistent naming conventions
+
+### Performance
+- Lazy data loading with useEffect
+- Memoized calculations where applicable
+- Optimized Chart.js rendering
+- Efficient CSV parsing
+
+## 🔒 Security Considerations
+
+⚠️ **Important**: Current implementation is for demonstration purposes only.
+
+- Password is hardcoded (not secure for production)
+- All data accessible in browser
+- No backend authentication
+- Session stored in localStorage
+
+**For Production Use:**
+- Implement proper authentication backend
+- Use environment variables for secrets
+- Add API authentication
+- Enable HTTPS
+- Implement rate limiting
+- Add data encryption
+
+## 📄 License
+
+ISC License
+
+## 👥 Contributors
+
+- KewnsR - Initial work and ongoing development
+
+## 🔗 Links
+
+- **Repository**: https://github.com/KewnsR/GraduateSurveyResponses
+- **Live Demo**: [Vercel Deployment URL]
+- **Issues**: https://github.com/KewnsR/GraduateSurveyResponses/issues
 
 To enable editing:
 1. Set up MySQL database as described above.
