@@ -17,24 +17,24 @@ const Login = ({ onLogin, onViewAsGuest }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center p-6">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center p-4 sm:p-6">
       <div className="w-full max-w-md">
         {/* Logo */}
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-3xl mb-6 shadow-xl shadow-indigo-500/20">
-            <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div className="text-center mb-6 sm:mb-10">
+          <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-3xl mb-4 sm:mb-6 shadow-xl shadow-indigo-500/20">
+            <svg className="w-8 h-8 sm:w-10 sm:h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
             </svg>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2 tracking-tight">Alumni Tracker</h1>
-          <p className="text-gray-600 font-medium">Employment Analytics Platform</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2 tracking-tight">Alumni Tracker</h1>
+          <p className="text-sm sm:text-base text-gray-600 font-medium">Employment Analytics Platform</p>
         </div>
 
         {/* Login Card */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-gray-200/50 p-8 mb-4">
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-1">Sign In</h2>
-            <p className="text-gray-600">Access the analytics dashboard</p>
+        <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-gray-200/50 p-6 sm:p-8 mb-4">
+          <div className="mb-6 sm:mb-8">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">Sign In</h2>
+            <p className="text-sm sm:text-base text-gray-600">Access the analytics dashboard</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">

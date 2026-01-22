@@ -107,32 +107,32 @@ const Employment = ({ userRole }) => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-gray-900 mb-2">Employment Analysis</h2>
-        <p className="text-gray-600">Comprehensive employment statistics and trends</p>
+        <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">Employment Analysis</h2>
+        <p className="text-sm sm:text-base text-gray-600">Comprehensive employment statistics and trends</p>
       </div>
 
       {/* Industry and Time to Employment */}
-      <div className="grid grid-cols-2 gap-6">
-        <div className="card p-6">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">Employment by Industry</h3>
-          <div className="h-80">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+        <div className="card p-4 sm:p-6">
+          <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">Employment by Industry</h3>
+          <div className="h-64 sm:h-80">
             <Bar data={industryData} options={barOptions} />
           </div>
         </div>
-        <div className="card p-6">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">Time to Employment</h3>
-          <div className="h-80 flex items-center justify-center">
+        <div className="card p-4 sm:p-6">
+          <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">Time to Employment</h3>
+          <div className="h-64 sm:h-80 flex items-center justify-center">
             <Doughnut data={timeToEmploymentData} options={chartOptions} />
           </div>
         </div>
       </div>
 
       {/* Demographics */}
-      <div className="card p-6">
-        <h3 className="text-lg font-bold text-gray-900 mb-6">Demographic Breakdown</h3>
-        <div className="grid grid-cols-3 gap-6">
+      <div className="card p-4 sm:p-6">
+        <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-6">Demographic Breakdown</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
           <div>
             <h4 className="text-sm font-semibold text-gray-700 mb-3">Gender Distribution</h4>
             <div className="h-48">
@@ -160,9 +160,9 @@ const Employment = ({ userRole }) => {
       </div>
 
       {/* Socioeconomic Mobility */}
-      <div className="card p-6">
-        <h3 className="text-lg font-bold text-gray-900 mb-4">Socio-Economic Mobility</h3>
-        <div className="h-80">
+      <div className="card p-4 sm:p-6">
+        <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">Socio-Economic Mobility</h3>
+        <div className="h-64 sm:h-80">
           <Bar 
             data={socioeconomicData} 
             options={{
@@ -180,8 +180,8 @@ const Employment = ({ userRole }) => {
 
       {/* Unemployment Reasons */}
       {Object.keys(data.unemployment).length > 0 && (
-        <div className="card p-6">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">Reasons for Unemployment</h3>
+        <div className="card p-4 sm:p-6">
+          <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">Reasons for Unemployment</h3>
           <div className="space-y-3">
             {Object.entries(data.unemployment).map(([reason, count]) => (
               <div key={reason} className="flex items-center gap-4">

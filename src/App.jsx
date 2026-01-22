@@ -12,6 +12,7 @@ import Login from './components/Login'
 function App() {
   const [activeTab, setActiveTab] = useState('overview')
   const [userRole, setUserRole] = useState(null)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   useEffect(() => {
     // Check if user is already logged in
@@ -53,12 +54,18 @@ function App() {
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50/30">
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} onLogout={handleLogout} />
+      <Sidebar 
+        activeTab={activeTab} 
+        setActiveTab={setActiveTab} 
+        onLogout={handleLogout}
+        isMobileMenuOpen={isMobileMenuOpen}
+        setIsMobileMenuOpen={setIsMobileMenuOpen}
+      />
       
-      <main className="flex-1 ml-72">
-        <Header userRole={userRole} />
+      <main className="flex-1 lg:ml-72">
+        <Header userRole={userRole} setIsMobileMenuOpen={setIsMobileMenuOpen} />
         
-        <div className="p-8">
+        <div className="p-4 sm:p-6 lg:p-8">
           <KPICards userRole={userRole} />
           {renderContent()}
         </div>

@@ -45,37 +45,37 @@ const Overview = ({ userRole }) => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-gray-900 mb-2">Dashboard Overview</h2>
-        <p className="text-gray-600">Graduate employability status and key metrics</p>
+        <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">Dashboard Overview</h2>
+        <p className="text-sm sm:text-base text-gray-600">Graduate employability status and key metrics</p>
       </div>
 
       <Charts />
 
       {/* Employment Status Breakdown */}
-      <div className="grid grid-cols-2 gap-6">
-        <div className="card p-6 hover:shadow-soft-lg transition-shadow">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-lg flex items-center justify-center">
-              <Activity className="w-7 h-7" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
+        <div className="card p-4 sm:p-6 hover:shadow-soft-lg transition-shadow">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 bg-emerald-50 text-emerald-600 rounded-lg flex items-center justify-center">
+              <Activity className="w-6 h-6 sm:w-7 sm:h-7" />
             </div>
             <div>
-              <div className="text-3xl font-bold text-gray-900">{stats.employedCount}</div>
-              <div className="text-sm text-gray-600 mt-1">Currently Employed</div>
+              <div className="text-2xl sm:text-3xl font-bold text-gray-900">{stats.employedCount}</div>
+              <div className="text-xs sm:text-sm text-gray-600 mt-1">Currently Employed</div>
               <div className="text-xs text-emerald-600 mt-1">{stats.employmentRate}% of total respondents</div>
             </div>
           </div>
         </div>
         
-        <div className="card p-6 hover:shadow-soft-lg transition-shadow">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 bg-red-50 text-red-600 rounded-lg flex items-center justify-center">
-              <AlertCircle className="w-7 h-7" />
+        <div className="card p-4 sm:p-6 hover:shadow-soft-lg transition-shadow">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 bg-red-50 text-red-600 rounded-lg flex items-center justify-center">
+              <AlertCircle className="w-6 h-6 sm:w-7 sm:h-7" />
             </div>
             <div>
-              <div className="text-3xl font-bold text-gray-900">{stats.seekingCount}</div>
-              <div className="text-sm text-gray-600 mt-1">Seeking Employment</div>
+              <div className="text-2xl sm:text-3xl font-bold text-gray-900">{stats.seekingCount}</div>
+              <div className="text-xs sm:text-sm text-gray-600 mt-1">Seeking Employment</div>
               <div className="text-xs text-orange-600 mt-1">{((stats.seekingCount / stats.totalRespondents) * 100).toFixed(1)}% of total respondents</div>
             </div>
           </div>
@@ -83,18 +83,18 @@ const Overview = ({ userRole }) => {
       </div>
 
       {/* Graduates by Year & Top Industries */}
-      <div className="grid grid-cols-2 gap-6">
-        <div className="card p-6">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">Graduates by Year</h3>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+        <div className="card p-4 sm:p-6">
+          <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">Graduates by Year</h3>
           <div className="space-y-3">
             {Object.entries(stats.graduatesByYear).map(([year, count]) => (
               <div key={year} className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <BookOpen className="w-5 h-5 text-blue-500" />
-                  <span className="text-sm font-medium text-gray-900">Class of {year}</span>
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />
+                  <span className="text-xs sm:text-sm font-medium text-gray-900">Class of {year}</span>
                 </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-32 bg-gray-200 rounded-full h-2">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="w-20 sm:w-32 bg-gray-200 rounded-full h-2">
                     <div 
                       className="bg-blue-500 h-2 rounded-full" 
                       style={{ width: `${(count / stats.totalRespondents * 100)}%` }}
@@ -107,17 +107,17 @@ const Overview = ({ userRole }) => {
           </div>
         </div>
 
-        <div className="card p-6">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">Top Employment Industries</h3>
+        <div className="card p-4 sm:p-6">
+          <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">Top Employment Industries</h3>
           <div className="space-y-3">
             {stats.topIndustries.map(([industry, count], index) => (
               <div key={industry} className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Building2 className="w-5 h-5 text-emerald-500" />
-                  <span className="text-sm font-medium text-gray-900">{industry || 'Other'}</span>
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <Building2 className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-500" />
+                  <span className="text-xs sm:text-sm font-medium text-gray-900">{industry || 'Other'}</span>
                 </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-32 bg-gray-200 rounded-full h-2">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="w-20 sm:w-32 bg-gray-200 rounded-full h-2">
                     <div 
                       className="bg-emerald-500 h-2 rounded-full" 
                       style={{ width: `${(count / stats.employedCount * 100)}%` }}
@@ -132,9 +132,9 @@ const Overview = ({ userRole }) => {
       </div>
 
       {/* Key Insights */}
-      <div className="grid grid-cols-2 gap-6">
-        <div className="card p-6">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">Program Success Rate</h3>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+        <div className="card p-4 sm:p-6">
+          <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">Program Success Rate</h3>
           <div className="space-y-3">
             <div className="flex justify-between items-center">
               <span className="text-sm text-gray-600">Employment Rate</span>
@@ -152,8 +152,8 @@ const Overview = ({ userRole }) => {
           </div>
         </div>
 
-        <div className="card p-6">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">Certification Success</h3>
+        <div className="card p-4 sm:p-6">
+          <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">Certification Success</h3>
           <div className="space-y-3">
             <div className="flex justify-between items-center">
               <span className="text-sm text-gray-600">LET Passers</span>

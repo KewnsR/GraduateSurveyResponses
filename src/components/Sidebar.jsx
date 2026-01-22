@@ -8,7 +8,7 @@ import {
 } from 'lucide-react'
 import LogoutModal from './LogoutModal'
 
-const Sidebar = ({ activeTab, setActiveTab, onLogout }) => {
+const Sidebar = ({ activeTab, setActiveTab, onLogout, isMobileMenuOpen, setIsMobileMenuOpen }) => {
   const [showLogoutModal, setShowLogoutModal] = useState(false)
   
   const navItems = [
@@ -35,7 +35,16 @@ const Sidebar = ({ activeTab, setActiveTab, onLogout }) => {
 
   return (
     <>
-      <aside className="w-72 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-800 fixed left-0 top-0 bottom-0 flex flex-col shadow-2xl">
+      {/* Mobile Overlay */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        ></div>
+      )}
+      
+      {/* Sidebar */}
+      <aside className={`w-72 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-800 fixed left-0 top-0 bottom-0 flex flex-col shadow-2xl z-50 transform transition-transform duration-300 lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         {/* Logo */}
         <div className="p-8 border-b border-white/5">
           <div className="flex items-center gap-3">
@@ -58,7 +67,10 @@ const Sidebar = ({ activeTab, setActiveTab, onLogout }) => {
             return (
               <div
                 key={item.id}
-                onClick={() => setActiveTab(item.id)}
+                onClick={() => {
+                  setActiveTab(item.id)
+                  setIsMobileMenuOpen(false)
+                }}
                 className={`nav-item ${activeTab === item.id ? 'active' : ''}`}
               >
                 <Icon className="w-5 h-5" />

@@ -87,14 +87,14 @@ const AlumniRecords = ({ userRole }) => {
   return (
     <div className="space-y-6">
       {/* Filters */}
-      <div className="card p-6">
+      <div className="card p-4 sm:p-6">
         <div className="flex items-center gap-3 mb-4">
           <Filter className="w-5 h-5 text-gray-500" />
           <h3 className="font-semibold text-gray-900">Filters & Search</h3>
         </div>
         
-        <div className="grid grid-cols-6 gap-4">
-          <div className="col-span-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 sm:gap-4">
+          <div className="sm:col-span-2">
             <input
               type="text"
               placeholder="Search name, company, position..."
@@ -141,7 +141,7 @@ const AlumniRecords = ({ userRole }) => {
             <option value="Public">Public</option>
           </select>
           <button 
-            className="px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
+            className="px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium sm:col-span-2 lg:col-span-1"
             onClick={clearFilters}
           >
             Clear All
@@ -154,7 +154,7 @@ const AlumniRecords = ({ userRole }) => {
       </div>
 
       {/* Alumni Cards */}
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {filteredAlumni.map((person) => {
           const initials = person.name
             .split(',')[0]
@@ -166,9 +166,9 @@ const AlumniRecords = ({ userRole }) => {
           const isEmployed = person.employed.toLowerCase() === 'yes'
 
           return (
-            <div key={person.id} className="card p-6 hover:shadow-soft-lg transition-all">
+            <div key={person.id} className="card p-4 sm:p-6 hover:shadow-soft-lg transition-all">
               <div className="flex items-start justify-between mb-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-primary-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
                   {initials}
                 </div>
                 <span className={`px-3 py-1 rounded-full text-xs font-medium ${
@@ -180,9 +180,9 @@ const AlumniRecords = ({ userRole }) => {
                 </span>
               </div>
               
-              <h4 className="font-semibold text-gray-900 mb-1 line-clamp-1">{person.name}</h4>
+              <h4 className="font-semibold text-sm sm:text-base text-gray-900 mb-1 line-clamp-1">{person.name}</h4>
               {userRole === 'admin' && (
-                <p className="text-sm text-gray-500 mb-1 line-clamp-1">{person.email}</p>
+                <p className="text-xs sm:text-sm text-gray-500 mb-1 line-clamp-1">{person.email}</p>
               )}
               {userRole === 'viewer' && (
                 <div className="flex items-center gap-1 text-xs text-gray-400 mb-1">

@@ -125,32 +125,32 @@ const Charts = () => {
   }
 
   return (
-    <div className="grid grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
       {/* Main Chart */}
-      <div className="col-span-2 card p-6">
-        <div className="flex justify-between items-start mb-6">
+      <div className="lg:col-span-2 card p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-6">
           <div>
-            <h3 className="text-lg font-bold text-gray-900">Graduates by Year</h3>
-            <p className="text-sm text-gray-500 mt-1">Number of graduates from BSED Mathematics program</p>
+            <h3 className="text-base sm:text-lg font-bold text-gray-900">Graduates by Year</h3>
+            <p className="text-xs sm:text-sm text-gray-500 mt-1">Number of graduates from BSED Mathematics program</p>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 mt-2 sm:mt-0">
             <div className="flex gap-4">
-              <span className="flex items-center gap-2 text-sm">
+              <span className="flex items-center gap-2 text-xs sm:text-sm">
                 <span className="w-2.5 h-2.5 rounded-full bg-primary-500"></span>
                 Graduates
               </span>
             </div>
           </div>
         </div>
-        <div className="h-80">
+        <div className="h-64 sm:h-80">
           <Line data={lineData} options={chartOptions} />
         </div>
       </div>
 
       {/* Doughnut Chart */}
-      <div className="card p-6">
+      <div className="card p-4 sm:p-6">
         <div className="flex justify-between items-start mb-6">
-          <h3 className="text-lg font-bold text-gray-900">Employment Status</h3>
+          <h3 className="text-base sm:text-lg font-bold text-gray-900">Employment Status</h3>
           <button className="text-gray-400 hover:text-gray-600">
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
               <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />

@@ -61,76 +61,76 @@ const Analytics = ({ userRole }) => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-gray-900 mb-2">Advanced Analytics</h2>
-        <p className="text-gray-600">Key performance indicators and insights</p>
+        <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">Advanced Analytics</h2>
+        <p className="text-sm sm:text-base text-gray-600">Key performance indicators and insights</p>
       </div>
 
       {/* KPI Summary Cards */}
-      <div className="grid grid-cols-4 gap-6">
-        <div className="card p-6">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center">
-              <Users className="w-6 h-6" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+        <div className="card p-4 sm:p-6">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center">
+              <Users className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <div>
-              <div className="text-2xl font-bold text-gray-900">{stats.totalRespondents}</div>
-              <div className="text-sm text-gray-600">Total Respondents</div>
+              <div className="text-xl sm:text-2xl font-bold text-gray-900">{stats.totalRespondents}</div>
+              <div className="text-xs sm:text-sm text-gray-600">Total Respondents</div>
             </div>
           </div>
         </div>
 
-        <div className="card p-6">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-green-50 text-green-600 rounded-lg flex items-center justify-center">
-              <TrendingUp className="w-6 h-6" />
+        <div className="card p-4 sm:p-6">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-50 text-green-600 rounded-lg flex items-center justify-center">
+              <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <div>
-              <div className="text-2xl font-bold text-gray-900">{stats.employmentRate}%</div>
-              <div className="text-sm text-gray-600">Employment Rate</div>
+              <div className="text-xl sm:text-2xl font-bold text-gray-900">{stats.employmentRate}%</div>
+              <div className="text-xs sm:text-sm text-gray-600">Employment Rate</div>
             </div>
           </div>
         </div>
 
-        <div className="card p-6">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-purple-50 text-purple-600 rounded-lg flex items-center justify-center">
-              <Award className="w-6 h-6" />
+        <div className="card p-4 sm:p-6">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-50 text-purple-600 rounded-lg flex items-center justify-center">
+              <Award className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <div>
-              <div className="text-2xl font-bold text-gray-900">{stats.letPassers}</div>
-              <div className="text-sm text-gray-600">LET Passers</div>
+              <div className="text-xl sm:text-2xl font-bold text-gray-900">{stats.letPassers}</div>
+              <div className="text-xs sm:text-sm text-gray-600">LET Passers</div>
             </div>
           </div>
         </div>
 
-        <div className="card p-6">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-orange-50 text-orange-600 rounded-lg flex items-center justify-center">
-              <Building2 className="w-6 h-6" />
+        <div className="card p-4 sm:p-6">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-orange-50 text-orange-600 rounded-lg flex items-center justify-center">
+              <Building2 className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <div>
-              <div className="text-2xl font-bold text-gray-900">{Object.keys(stats.orgTypes).length}</div>
-              <div className="text-sm text-gray-600">Organization Types</div>
+              <div className="text-xl sm:text-2xl font-bold text-gray-900">{Object.keys(stats.orgTypes).length}</div>
+              <div className="text-xs sm:text-sm text-gray-600">Organization Types</div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Organization Types */}
-      <div className="card p-6">
-        <h3 className="text-lg font-bold text-gray-900 mb-4">Employment by Organization Type</h3>
-        <div className="h-80">
+      <div className="card p-4 sm:p-6">
+        <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">Employment by Organization Type</h3>
+        <div className="h-64 sm:h-80">
           <Bar data={orgTypeData} options={chartOptions} />
         </div>
       </div>
 
       {/* Awards and Recognition */}
       {Object.keys(stats.awards).length > 0 && (
-        <div className="card p-6">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">Awards and Recognition</h3>
-          <div className="grid grid-cols-2 gap-4">
+        <div className="card p-4 sm:p-6">
+          <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">Awards and Recognition</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {Object.entries(stats.awards).map(([award, count]) => (
               <div key={award} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                 <div className="flex items-center gap-3">
@@ -145,8 +145,8 @@ const Analytics = ({ userRole }) => {
       )}
 
       {/* Summary Statistics */}
-      <div className="grid grid-cols-3 gap-6">
-        <div className="card p-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+        <div className="card p-4 sm:p-6">
           <h4 className="text-sm font-semibold text-gray-700 mb-4">Employment Summary</h4>
           <div className="space-y-3">
             <div className="flex justify-between">

@@ -75,7 +75,7 @@ const KPICards = () => {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-6 lg:mb-8">
       {kpis.map((kpi, index) => {
         const Icon = kpi.icon
         const TrendIcon = kpi.isPositive ? TrendingUp : TrendingDown
@@ -83,7 +83,7 @@ const KPICards = () => {
         return (
           <div
             key={index}
-            className="card p-6 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 group"
+            className="card p-4 sm:p-6 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 group"
           >
             <div className="flex justify-between items-start mb-4">
               <span className="text-sm font-semibold text-gray-600 uppercase tracking-wide">{kpi.label}</span>
