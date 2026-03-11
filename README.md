@@ -2,7 +2,7 @@
 
 A modern React-based dashboard for visualizing graduate employment survey data from the Bachelor of Secondary Education Major in Mathematics program (Academic Year 2024). Features interactive charts, role-based access control, and comprehensive employment analytics.
 
-## 🚀 Tech Stack
+## Tech Stack
 
 - **Frontend Framework**: React 19.2.3
 - **Build Tool**: Vite 7.3.1
@@ -12,13 +12,13 @@ A modern React-based dashboard for visualizing graduate employment survey data f
 - **CSV Parsing**: PapaParse 5.5.3
 - **Deployment**: Vercel
 
-## 🛠️ Local Development
+## Local Development
 
 ### Prerequisites
 - Node.js 16+ and npm
 - Modern web browser
 
-## ⚙️ Configuration
+## Configuration
 
 ### Tailwind CSS
 - Version: 3.4.16 (PostCSS compatible)
@@ -30,11 +30,11 @@ A modern React-based dashboard for visualizing graduate employment survey data f
 - Development server on port 5173
 - Production builds optimized with code splitting
 
-## 📄 License
+## License
 
 ISC License
 
-## 👥 Contributors
+## Contributors
 
 - KewnsR - Initial work and ongoing development
 
